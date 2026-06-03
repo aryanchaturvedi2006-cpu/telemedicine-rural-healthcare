@@ -228,6 +228,7 @@ const T = {
     submitRequest:"मांग भेजो",cancel:"रद्द करो",requestSent:"आपरी मांग भेज दी गई",close:"बंद करो",
     patient:"मरीज़",doctor:"डॉक्टर",selectGender:"लिंग चूणो",
     demoPatientLogin:"मरीज़ डेमो लॉगिन",demoDoctorLogin:"डॉक्टर डेमो लॉगिन",
+    "General Medicine": "सामान्य चिकित्सा", "Paediatrics (Children)": "बाल रोग", "Gynaecology (Women)": "लुगायां रो रोग", "Cardiology (Heart)": "काळजा रो रोग", "Orthopaedics (Bones)": "हाडकां रो रोग", "Dermatology (Skin)": "चामड़ी रो रोग", "ENT (Ear Nose Throat)": "कान नाक गळो", "Ophthalmology (Eyes)": "आंख्यां रो रोग", "Psychiatry (Mental Health)": "दिमागी भली", "Dentistry": "दंत चिकित्सा", "Surgery": "शल्य चिकित्सा", "Neurology (Brain)": "दिमाग रो रोग", "Ayurveda": "आयुर्वेद", "Homoeopathy": "होम्योपैथी", "Physiotherapy": "फिजियोथेरेपी"
   },
 
   // ── GUJARATI ───────────────────────────────────────────
@@ -287,6 +288,7 @@ const T = {
     submitRequest:"વિનંતી મોકલો",cancel:"રદ કરો",requestSent:"વિનંતી મોકલાઈ ગઈ",close:"બંધ",
     patient:"દર્દી",doctor:"ડૉક્ટર",selectGender:"લિંગ પસંદ કરો",
     demoPatientLogin:"દર્દી ડેમો લૉગિન",demoDoctorLogin:"ડૉક્ટર ડેમો લૉગિન",
+    "General Medicine": "સામાન્ય ચિકિત્સા", "Paediatrics (Children)": "બાળ રોગ", "Gynaecology (Women)": "સ્ત્રી રોગ", "Cardiology (Heart)": "હૃદય રોગ", "Orthopaedics (Bones)": "હાડકાંનો રોગ", "Dermatology (Skin)": "ચામડીનો રોગ", "ENT (Ear Nose Throat)": "કાન નાક ગળું", "Ophthalmology (Eyes)": "આંખનો રોગ", "Psychiatry (Mental Health)": "માનસિક સ્વાસ્થ્ય", "Dentistry": "દંત ચિકિત્સા", "Surgery": "શસ્ત્રક્રિયા", "Neurology (Brain)": "મગજનો રોગ", "Ayurveda": "આયુર્વેદ", "Homoeopathy": "હોમિયોપેથી", "Physiotherapy": "ફિઝિયોથેરાપી"
   },
 
   // ── MARATHI ────────────────────────────────────────────
@@ -338,7 +340,7 @@ const T = {
     accept:"स्वीकार करा",decline:"नाकारा",viewDetails:"तपशील पाहा",
     name:"नाव",phone:"फोन",village:"गाव/शहर",
     fillAllFields:"कृपया सर्व माहिती भरा",
-    invalidMobile:"मोबाईल नंबर 10 अंकी असावा",
+    invalidMobile:"মোबाईल नंबर 10 अंकी असावा",
     passwordShort:"पासवर्ड किमान 8 अक्षरांचा असावा",
     loginDemo:"डेमोने लॉगिन करा",demoNote:"डेमो: patient@demo.com / demo1234",
     bookingTitle:"डॉक्टर भेटीची विनंती",symptomLabel:"तुमची समस्या काय आहे?",
@@ -346,6 +348,7 @@ const T = {
     submitRequest:"विनंती पाठवा",cancel:"रद्द करा",requestSent:"विनंती पाठवली गेली",close:"बंद करा",
     patient:"रुग्ण",doctor:"डॉक्टर",selectGender:"लिंग निवडा",
     demoPatientLogin:"रुग्ण डेमो लॉगिन",demoDoctorLogin:"डॉक्टर डेमो लॉगिन",
+    "General Medicine": "सामान्य चिकित्सा", "Paediatrics (Children)": "बालरोग", "Gynaecology (Women)": "स्त्रीरोग", "Cardiology (Heart)": "हृदयरोग", "Orthopaedics (Bones)": "हाडांचे आजार", "Dermatology (Skin)": "त्वचारोग", "ENT (Ear Nose Throat)": "कान नाक घसा", "Ophthalmology (Eyes)": "नेत्ररोग", "Psychiatry (Mental Health)": "मानसिक आरोग्य", "Dentistry": "दंतचिकित्सा", "Surgery": "शस्त्रक्रिया", "Neurology (Brain)": "मेंदूचे आजार", "Ayurveda": "आयुर्वेद", "Homoeopathy": "होमिओपॅथी", "Physiotherapy": "फिजिओथेरपी"
   },
 
   // ── TAMIL ──────────────────────────────────────────────
@@ -405,6 +408,7 @@ const T = {
     submitRequest:"கோரிக்கை அனுப்பு",cancel:"ரத்து செய்",requestSent:"கோரிக்கை அனுப்பப்பட்டது",close:"மூடு",
     patient:"நோயாளி",doctor:"டாக்டர்",selectGender:"பாலினம் தேர்ந்தெடுக்கவும்",
     demoPatientLogin:"நோயாளி டெமோ உள்நுழைவு",demoDoctorLogin:"டாக்டர் டெமோ உள்நுழைவு",
+    "General Medicine": "பொது மருத்துவம்", "Paediatrics (Children)": "குழந்தை மருத்துவம்", "Gynaecology (Women)": "மகளிர் மருத்துவம்", "Cardiology (Heart)": "இதய மருத்துவம்", "Orthopaedics (Bones)": "எலும்பு மருத்துவம்", "Dermatology (Skin)": "தோல் மருத்துவம்", "ENT (Ear Nose Throat)": "காது மூக்கு தொண்டை", "Ophthalmology (Eyes)": "கண் மருத்துவம்", "Psychiatry (Mental Health)": "மனநல மருத்துவம்", "Dentistry": "பல் மருத்துவம்", "Surgery": "அறுவை சிகிச்சை", "Neurology (Brain)": "நரம்பியல்", "Ayurveda": "ஆயுர்வேதம்", "Homoeopathy": "ஹோமியோபதி", "Physiotherapy": "பிசியோதெரபி"
   },
 
   // ── TELUGU ─────────────────────────────────────────────
@@ -464,6 +468,7 @@ const T = {
     submitRequest:"అభ్యర్థన పంపు",cancel:"రద్దు చేయి",requestSent:"అభ్యర్థన పంపబడింది",close:"మూసివేయి",
     patient:"రోగి",doctor:"డాక్టర్",selectGender:"లింగం ఎంచుకోండి",
     demoPatientLogin:"రోగి డెమో లాగిన్",demoDoctorLogin:"డాక్టర్ డెమో లాగిన్",
+    "General Medicine": "జనరల్ మెడిసిన్", "Paediatrics (Children)": "పిల్లల వైద్యం", "Gynaecology (Women)": "స్త్రీల వైద్యం", "Cardiology (Heart)": "గుండె వైద్యం", "Orthopaedics (Bones)": "ఎముకల వైద్యం", "Dermatology (Skin)": "చర్మ వ్యాధులు", "ENT (Ear Nose Throat)": "చెవి ముక్కు గొంతు", "Ophthalmology (Eyes)": "కంటి వైద్యం", "Psychiatry (Mental Health)": "మానసిక ఆరోగ్యం", "Dentistry": "దంత వైద్యం", "Surgery": "శస్త్రచికిత్స", "Neurology (Brain)": "నరాల వైద్యం", "Ayurveda": "ఆయుర్వేదం", "Homoeopathy": "హోమియోపతి", "Physiotherapy": "ఫిజియోథెరపీ"
   },
 
   // ── PUNJABI ────────────────────────────────────────────
@@ -523,6 +528,7 @@ const T = {
     submitRequest:"ਬੇਨਤੀ ਭੇਜੋ",cancel:"ਰੱਦ ਕਰੋ",requestSent:"ਬੇਨਤੀ ਭੇਜ ਦਿੱਤੀ ਗਈ",close:"ਬੰਦ",
     patient:"ਮਰੀਜ਼",doctor:"ਡਾਕਟਰ",selectGender:"ਲਿੰਗ ਚੁਣੋ",
     demoPatientLogin:"ਮਰੀਜ਼ ਡੈਮੋ ਲੌਗਿਨ",demoDoctorLogin:"ਡਾਕਟਰ ਡੈਮੋ ਲੌਗਿਨ",
+    "General Medicine": "ਆਮ ਦਵਾਈ", "Paediatrics (Children)": "ਬੱਚਿਆਂ ਦੇ ਰੋਗ", "Gynaecology (Women)": "ਔਰਤਾਂ ਦੇ ਰੋਗ", "Cardiology (Heart)": "ਦਿਲ ਦੇ ਰੋਗ", "Orthopaedics (Bones)": "ਹੱਡੀਆਂ ਦੇ ਰੋਗ", "Dermatology (Skin)": "ਚਮੜੀ ਦੇ ਰੋਗ", "ENT (Ear Nose Throat)": "ਕੰਨ ਨੱਕ ਗਲਾ", "Ophthalmology (Eyes)": "ਅੱਖਾਂ ਦੇ ਰੋਗ", "Psychiatry (Mental Health)": "ਦਿਮਾਗੀ ਸਿਹਤ", "Dentistry": "ਦੰਦਾਂ ਦਾ ਇਲਾਜ", "Surgery": "ਸਰਜਰੀ", "Neurology (Brain)": "ਦਿਮਾਗ ਦੇ ਰੋਗ", "Ayurveda": "ਆਯੁਰਵੇਦ", "Homoeopathy": "ਹੋਮਿਓਪੈਥੀ", "Physiotherapy": "ਫਿਜ਼ੀਓਥੈਰੇਪੀ"
   },
 
   // ── BENGALI ────────────────────────────────────────────
@@ -582,6 +588,7 @@ const T = {
     submitRequest:"অনুরোধ পাঠান",cancel:"বাতিল করুন",requestSent:"অনুরোধ পাঠানো হয়েছে",close:"বন্ধ",
     patient:"রোগী",doctor:"ডাক্তার",selectGender:"লিঙ্গ বেছে নিন",
     demoPatientLogin:"রোগী ডেমো লগিন",demoDoctorLogin:"ডাক্তার ডেমো লগিন",
+    "General Medicine": "সাধারণ চিকিৎসা", "Paediatrics (Children)": "শিশুরোগ", "Gynaecology (Women)": "স্ত্রীরোগ", "Cardiology (Heart)": "হৃদরোগ", "Orthopaedics (Bones)": "হাড়ের রোগ", "Dermatology (Skin)": "চর্মরোগ", "ENT (Ear Nose Throat)": "কান নাক গলা", "Ophthalmology (Eyes)": "চোখের রোগ", "Psychiatry (Mental Health)": "মানসিক স্বাস্থ্য", "Dentistry": "দন্ত চিকিৎসা", "Surgery": "অস্ত্রোপচার", "Neurology (Brain)": "স্নায়ুরোগ", "Ayurveda": "আয়ুর্বেদ", "Homoeopathy": "হোমিওপ্যাথি", "Physiotherapy": "ফিজিওথেরাপি"
   },
 
   // ── KANNADA ────────────────────────────────────────────
@@ -641,6 +648,7 @@ const T = {
     submitRequest:"ವಿನಂತಿ ಕಳುಹಿಸಿ",cancel:"ರದ್ದು ಮಾಡಿ",requestSent:"ವಿನಂತಿ ಕಳುಹಿಸಲಾಗಿದೆ",close:"ಮುಚ್ಚಿ",
     patient:"ರೋಗಿ",doctor:"ವೈದ್ಯ",selectGender:"ಲಿಂಗ ಆರಿಸಿ",
     demoPatientLogin:"ರೋಗಿ ಡೆಮೊ ಲಾಗಿನ್",demoDoctorLogin:"ವೈದ್ಯ ಡೆಮೊ ಲಾಗಿನ್",
+    "General Medicine": "ಸಾಮಾನ್ಯ ವೈದ್ಯಕೀಯ", "Paediatrics (Children)": "ಮಕ್ಕಳ ವೈದ್ಯಕೀಯ", "Gynaecology (Women)": "ಸ್ತ್ರೀರೋಗ", "Cardiology (Heart)": "ಹೃದಯ ರೋಗ", "Orthopaedics (Bones)": "ಮೂಳೆ ರೋಗ", "Dermatology (Skin)": "ಚರ್ಮ ರೋಗ", "ENT (Ear Nose Throat)": "ಕಿವಿ ಮೂಗು ಗಂಟಲು", "Ophthalmology (Eyes)": "ಕಣ್ಣಿನ ರೋಗ", "Psychiatry (Mental Health)": "ಮಾನಸಿಕ ಆರೋಗ್ಯ", "Dentistry": "ದಂತ ವೈದ್ಯಕೀಯ", "Surgery": "ಶಸ್ತ್ರಚಿಕಿತ್ಸೆ", "Neurology (Brain)": "ನರರೋಗ", "Ayurveda": "ಆಯುರ್ವೇದ", "Homoeopathy": "ಹೋಮಿಯೋಪತಿ", "Physiotherapy": "ಫಿಸಿಯೋಥೆರಪಿ"
   },
 
   // ── MALAYALAM ──────────────────────────────────────────
@@ -700,6 +708,7 @@ const T = {
     submitRequest:"അഭ്യർഥന അയക്കുക",cancel:"റദ്ദാക്കുക",requestSent:"അഭ്യർഥന അയച്ചു",close:"അടയ്ക്കുക",
     patient:"രോഗി",doctor:"ഡോക്ടർ",selectGender:"ലിംഗം തിരഞ്ഞെടുക്കുക",
     demoPatientLogin:"രോഗി ഡെമോ ലോഗിൻ",demoDoctorLogin:"ഡോക്ടർ ഡെമോ ലോഗിൻ",
+    "General Medicine": "ജനറൽ മെడిസിൻ", "Paediatrics (Children)": "കുട്ടികളുടെ ഡോക്ടർ", "Gynaecology (Women)": "സ്ത്രീരോഗം", "Cardiology (Heart)": "ഹൃദ്രോഗം", "Orthopaedics (Bones)": "അസ്ഥിരോഗം", "Dermatology (Skin)": "ചർമ്മരോഗം", "ENT (Ear Nose Throat)": "ഇഎൻടി", "Ophthalmology (Eyes)": "നേത്രരോഗം", "Psychiatry (Mental Health)": "മാനസികാരോഗ്യം", "Dentistry": "ദന്തരോഗം", "Surgery": "ശസ്ത്രക്രിയ", "Neurology (Brain)": "ന്യൂറോളജി", "Ayurveda": "ആയുർവേദം", "Homoeopathy": "ഹോമിയോപ്പതി", "Physiotherapy": "ഫിസിയോതെറാപ്പി"
   },
 
   // ── ASSAMESE ───────────────────────────────────────────
@@ -759,6 +768,7 @@ const T = {
     submitRequest:"অনুৰোধ পঠাওক",cancel:"বাতিল কৰক",requestSent:"অনুৰোধ পঠোৱা হ'ল",close:"বন্ধ কৰক",
     patient:"ৰোগী",doctor:"চিকিৎসক",selectGender:"লিংগ বাছক",
     demoPatientLogin:"ৰোগী ডেমো লগিন",demoDoctorLogin:"চিকিৎসক ডেমো লগিন",
+    "General Medicine": "সাধাৰণ চিকিৎসা", "Paediatrics (Children)": "শিশুৰোগ", "Gynaecology (Women)": "স্ত্ৰীৰোগ", "Cardiology (Heart)": "হৃদৰোগ", "Orthopaedics (Bones)": "হাড়ৰ ৰোগ", "Dermatology (Skin)": "চৰ্মৰোগ", "ENT (Ear Nose Throat)": "কাণ নাক ডিঙি", "Ophthalmology (Eyes)": "চকুৰ ৰোগ", "Psychiatry (Mental Health)": "মানসিক স্বাস্থ্য", "Dentistry": "দাঁতৰ চিকিৎসা", "Surgery": "অস্ত্ৰোপচাৰ", "Neurology (Brain)": "স্নায়ুৰোগ", "Ayurveda": "আয়ুৰ্বেদ", "Homoeopathy": "হোমিঅ'পেথী", "Physiotherapy": "ফিজিঅ'থেৰাপী"
   },
 
   // ── ODIA ───────────────────────────────────────────────
@@ -818,6 +828,7 @@ const T = {
     submitRequest:"ଅନୁରୋଧ ପଠାନ୍ତୁ",cancel:"ବାତିଲ",requestSent:"ଅନୁରୋଧ ପଠାଗଲା",close:"ବନ୍ଦ",
     patient:"ରୋଗୀ",doctor:"ଡାକ୍ତର",selectGender:"ଲିଙ୍ଗ ବାଛନ୍ତୁ",
     demoPatientLogin:"ରୋଗୀ ଡେମୋ ଲଗଇନ",demoDoctorLogin:"ଡାକ୍ତର ଡେମୋ ଲଗଇନ",
+    "General Medicine": "ସାଧାରଣ ଚିକିତ୍ସା", "Paediatrics (Children)": "ଶିଶୁ ରୋଗ", "Gynaecology (Women)": "ସ୍ତ୍ରୀ ରୋଗ", "Cardiology (Heart)": "ହୃଦ୍ ରୋଗ", "Orthopaedics (Bones)": "ହାଡ଼ ରୋଗ", "Dermatology (Skin)": "ଚର୍ମ ରୋଗ", "ENT (Ear Nose Throat)": "କାନ ନାକ ଗଳା", "Ophthalmology (Eyes)": "ଆଖି ରୋଗ", "Psychiatry (Mental Health)": "ମାନସିକ ସ୍ୱାସ୍ଥ୍ୟ", "Dentistry": "ଦାନ୍ତ ଚିକିତ୍ସା", "Surgery": "ଶଲ୍ୟ ଚିକିତ୍ସା", "Neurology (Brain)": "ସ୍ନାୟୁ ରୋଗ", "Ayurveda": "ଆୟୁର୍ବେଦ", "Homoeopathy": "ହୋମିଓପାଥି", "Physiotherapy": "ଫିଜିଓଥେରାପି"
   },
 
   // ── NAGAMESE ───────────────────────────────────────────
@@ -877,6 +888,7 @@ const T = {
     submitRequest:"Request pathao",cancel:"Radd korok",requestSent:"Request pathano hoise",close:"Bondh",
     patient:"Rog",doctor:"Doctor",selectGender:"Gender choose korok",
     demoPatientLogin:"Rog Demo Login",demoDoctorLogin:"Doctor Demo Login",
+    "General Medicine": "Sadharon Dawa", "Paediatrics (Children)": "Bacha laga bimar", "Gynaecology (Women)": "Maiki laga bimar", "Cardiology (Heart)": "Dil laga bimar", "Orthopaedics (Bones)": "Haddi laga bimar", "Dermatology (Skin)": "Chamra laga bimar", "ENT (Ear Nose Throat)": "Kaan Nak Gala", "Ophthalmology (Eyes)": "Choku laga bimar", "Psychiatry (Mental Health)": "Dimag laga bimar", "Dentistry": "Daat laga bimar", "Surgery": "Operation", "Neurology (Brain)": "Dimag/Nerve laga bimar", "Ayurveda": "Ayurveda", "Homoeopathy": "Homoeopathy", "Physiotherapy": "Physiotherapy"
   },
 };
 
