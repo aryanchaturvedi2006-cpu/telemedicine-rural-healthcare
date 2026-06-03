@@ -9,7 +9,7 @@ const LanguageSelector = () => {
 
   const handleLanguageSelect = (code) => {
     setLanguage(code);
-    navigate('/patient-registration');
+    navigate('/landing');
   };
 
   return (

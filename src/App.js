@@ -4,7 +4,9 @@ import { LanguageProvider } from './context/LanguageContext';
 
 // Pages
 import LanguageSelector from './pages/LanguageSelector';
+import Landing from './pages/Landing';
 import PatientRegistration from './pages/PatientRegistration';
+import DoctorRegistration from './pages/DoctorRegistration';
 import PatientDashboard from './pages/PatientDashboard';
 import DoctorDashboard from './pages/DoctorDashboard';
 
@@ -14,7 +16,9 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LanguageSelector />} />
+          <Route path="/landing" element={<Landing />} />
           <Route path="/patient-registration" element={<PatientRegistration />} />
+          <Route path="/doctor-registration" element={<DoctorRegistration />} />
           <Route path="/patient-dashboard" element={<PatientDashboard />} />
           <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
         </Routes>

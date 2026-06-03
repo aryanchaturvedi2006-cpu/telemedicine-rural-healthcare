@@ -15,12 +15,15 @@ const PatientRegistration = () => {
     mobileNumber: '',
     street: '',
     villageCity: '',
-    district: '',
     state: '',
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const setGender = (val) => {
+    setFormData({ ...formData, gender: val });
   };
 
   const handleNext = (e) => {
@@ -38,7 +41,7 @@ const PatientRegistration = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.street || !formData.villageCity || !formData.district || !formData.state) {
+    if (!formData.street || !formData.villageCity || !formData.state) {
       alert(t('fillAllFields'));
       return;
     }
@@ -113,17 +116,50 @@ const PatientRegistration = () => {
 
             <div className="input-group">
               <label>{t('gender')}</label>
-              <select 
-                name="gender" 
-                value={formData.gender} 
-                onChange={handleChange}
-                className="large-input"
-              >
-                <option value="">{t('selectGender')}</option>
-                <option value="Male">{t('male')}</option>
-                <option value="Female">{t('female')}</option>
-                <option value="Other">{t('other')}</option>
-              </select>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button 
+                  type="button"
+                  className="large-input"
+                  style={{ 
+                    flex: 1, 
+                    backgroundColor: formData.gender === 'Male' ? 'var(--primary-green)' : 'white',
+                    color: formData.gender === 'Male' ? 'white' : 'var(--text-main)',
+                    borderColor: formData.gender === 'Male' ? 'var(--primary-green)' : 'var(--border-color)',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setGender('Male')}
+                >
+                  {t('male')}
+                </button>
+                <button 
+                  type="button"
+                  className="large-input"
+                  style={{ 
+                    flex: 1, 
+                    backgroundColor: formData.gender === 'Female' ? 'var(--primary-green)' : 'white',
+                    color: formData.gender === 'Female' ? 'white' : 'var(--text-main)',
+                    borderColor: formData.gender === 'Female' ? 'var(--primary-green)' : 'var(--border-color)',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setGender('Female')}
+                >
+                  {t('female')}
+                </button>
+                <button 
+                  type="button"
+                  className="large-input"
+                  style={{ 
+                    flex: 1, 
+                    backgroundColor: formData.gender === 'Other' ? 'var(--primary-green)' : 'white',
+                    color: formData.gender === 'Other' ? 'white' : 'var(--text-main)',
+                    borderColor: formData.gender === 'Other' ? 'var(--primary-green)' : 'var(--border-color)',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setGender('Other')}
+                >
+                  {t('other')}
+                </button>
+              </div>
             </div>
 
             <button type="submit" className="btn-primary large mt-4">
@@ -152,18 +188,6 @@ const PatientRegistration = () => {
                 value={formData.villageCity}
                 onChange={handleChange}
                 placeholder={t('villageCityPH')} 
-                className="large-input"
-              />
-            </div>
-
-            <div className="input-group">
-              <label>{t('district')}</label>
-              <input 
-                type="text" 
-                name="district"
-                value={formData.district}
-                onChange={handleChange}
-                placeholder={t('districtPH')} 
                 className="large-input"
               />
             </div>

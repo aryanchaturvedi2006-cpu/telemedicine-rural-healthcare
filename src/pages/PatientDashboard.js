@@ -17,8 +17,8 @@ const PatientDashboard = () => {
 
   const dummyDoctors = [
     { id: 1, name: "Dr. Sharma", specKey: "General Medicine", hospital: "District Hospital", dist: "2 km" },
-    { id: 2, name: "Dr. Verma", specKey: "Paediatrics (Children)", hospital: "City Clinic", dist: "5 km" },
-    { id: 3, name: "Dr. Patel", specKey: "Orthopaedics (Bones)", hospital: "Sanjeevani Hospital", dist: "12 km" }
+    { id: 2, name: "Dr. Verma", specKey: "Paediatrics (Children)", hospital: "City Clinic", dist: "4 km" },
+    { id: 3, name: "Dr. Patel", specKey: "Orthopaedics (Bones)", hospital: "Sanjeevani Hospital", dist: "6 km" }
   ];
 
   return (
@@ -34,24 +34,9 @@ const PatientDashboard = () => {
       </header>
 
       <div className="dash-body">
-        <div className="card hero-card" onClick={() => alert(t('comingSoon'))}>
-          <h2>{t('bookConsult')}</h2>
-          <p>{t('bookConsultSub')}</p>
-        </div>
-
-        <div className="action-grid">
-          <div className="card small-card" onClick={() => alert(t('comingSoon'))}>
-            <h3>{t('upcomingConsult')}</h3>
-            <p>{t('noConsult')}</p>
-          </div>
-
-          <div className="card small-card" onClick={() => alert(t('comingSoon'))}>
-            <h3>{t('myRecords')}</h3>
-            <p>{t('comingSoon')}</p>
-          </div>
-        </div>
-
-        <div className="nearby-doctors mt-4">
+        
+        {/* First section: Aapke Paas Ke Doctors */}
+        <div className="nearby-doctors mb-4" style={{ marginBottom: '24px' }}>
           <h2 style={{ marginBottom: '4px' }}>{t('nearbyDoctors')}</h2>
           <p style={{ marginBottom: '16px' }}>{t('nearbyDoctorsSub')}</p>
 
@@ -65,6 +50,7 @@ const PatientDashboard = () => {
               </div>
               <button 
                 className="btn-primary large mt-4" 
+                style={{ backgroundColor: 'var(--primary-green)' }}
                 onClick={() => alert(t('requestSent'))}
               >
                 {t('requestConsult')}
@@ -72,6 +58,25 @@ const PatientDashboard = () => {
             </div>
           ))}
         </div>
+
+        {/* Existing features below */}
+        <div className="card hero-card" onClick={() => alert(t('comingSoon'))}>
+          <h2>{t('bookConsult')}</h2>
+          <p>{t('bookConsultSub')}</p>
+        </div>
+
+        <div className="action-grid mt-4" style={{ marginTop: '16px' }}>
+          <div className="card small-card" onClick={() => alert(t('comingSoon'))}>
+            <h3>{t('upcomingConsult')}</h3>
+            <p>{t('noConsult')}</p>
+          </div>
+
+          <div className="card small-card" onClick={() => alert(t('comingSoon'))}>
+            <h3>{t('myRecords')}</h3>
+            <p>{t('comingSoon')}</p>
+          </div>
+        </div>
+
       </div>
     </div>
   );
