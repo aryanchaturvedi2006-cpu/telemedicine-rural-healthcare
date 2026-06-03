@@ -73,7 +73,7 @@ const DoctorRegistration = () => {
             >
               <option value="">{t('selectSpec')}</option>
               {SPECIALIZATIONS.map((spec) => (
-                <option key={spec} value={spec}>{spec}</option>
+                <option key={spec} value={spec}>{t(spec)}</option>
               ))}
             </select>
           </div>
