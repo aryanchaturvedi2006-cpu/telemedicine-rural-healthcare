@@ -16,7 +16,8 @@ export const SPECIALIZATIONS = [
   "General Medicine","Paediatrics (Children)","Gynaecology (Women)",
   "Cardiology (Heart)","Orthopaedics (Bones)","Dermatology (Skin)",
   "ENT (Ear Nose Throat)","Ophthalmology (Eyes)","Psychiatry (Mental Health)",
-  "Dentistry","Surgery","Neurology (Brain)"
+  "Dentistry","Surgery","Neurology (Brain)",
+  "Ayurveda", "Homoeopathy", "Physiotherapy"
 ];
 
 export const LANGUAGE_META = [
