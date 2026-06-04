@@ -64,7 +64,7 @@ const PatientRegistration = () => {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('patientData', JSON.stringify({ ...data.patient, role: 'patient' }));
+        localStorage.setItem('currentPatient', JSON.stringify({ ...data.patient, role: 'patient' }));
         navigate('/patient-dashboard');
       } else {
         if (data.message === 'Mobile number already registered') {

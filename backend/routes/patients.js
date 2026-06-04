@@ -8,7 +8,7 @@ router.post('/register', async (req, res) => {
     const { name, age, gender, mobile, street, village, state } = req.body;
 
     // Check if mobile already exists
-    const [existing] = await pool.query('SELECT id FROM patients WHERE mobile = ?', [mobile]);
+    const [existing] = await pool.query('SELECT id FROM patients WHERE TRIM(mobile) = TRIM(?)', [mobile]);
     if (existing.length > 0) {
       return res.status(400).json({ success: false, message: 'Mobile number already registered' });
     }
@@ -30,7 +30,7 @@ router.post('/login', async (req, res) => {
   try {
     const { mobile } = req.body;
 
-    const [patients] = await pool.query('SELECT * FROM patients WHERE mobile = ?', [mobile]);
+    const [patients] = await pool.query('SELECT * FROM patients WHERE TRIM(mobile) = TRIM(?)', [mobile]);
     
     if (patients.length === 0) {
       return res.status(404).json({ success: false, message: 'Patient not found' });

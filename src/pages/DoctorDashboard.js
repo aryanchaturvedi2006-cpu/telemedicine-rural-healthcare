@@ -1,12 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const DoctorDashboard = () => {
   const { t, setLanguage } = useLanguage();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    logout();
     localStorage.clear();
     setLanguage('');
     navigate('/');

@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const PatientDashboard = () => {
   const { t, setLanguage } = useLanguage();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const patientData = JSON.parse(localStorage.getItem('patientData') || '{}');
-  const name = patientData.fullName || 'Ramesh';
+  const patientData = JSON.parse(localStorage.getItem('currentPatient') || '{}');
+  const name = patientData.name || 'Patient';
 
   const handleLogout = () => {
+    logout();
     localStorage.clear();
     setLanguage('');
     navigate('/');
