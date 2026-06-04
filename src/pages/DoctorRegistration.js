@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { SPECIALIZATIONS } from '../translations/translations';
+import API_BASE_URL from '../config';
 
 const DoctorRegistration = () => {
   const { t, setLanguage } = useLanguage();
@@ -26,7 +27,7 @@ const DoctorRegistration = () => {
     }
     
     try {
-      const response = await fetch('http://localhost:5000/api/doctors/register', {
+      const response = await fetch(`${API_BASE_URL}/api/doctors/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
