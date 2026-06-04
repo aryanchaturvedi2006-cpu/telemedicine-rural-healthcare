@@ -41,6 +41,14 @@ const Landing = () => {
         >
           <h2>{t('createAccount')}</h2>
         </div>
+
+        <div 
+          className="card hero-card" 
+          style={{ backgroundColor: 'var(--primary-green)', cursor: 'pointer' }}
+          onClick={() => navigate('/patient-login')}
+        >
+          <h2>{t('alreadyHaveAccountTile')}</h2>
+        </div>
       </div>
     </div>
   );

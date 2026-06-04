@@ -7,6 +7,7 @@ const DoctorDashboard = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    localStorage.clear();
     setLanguage('');
     navigate('/');
   };

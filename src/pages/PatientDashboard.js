@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -10,16 +10,38 @@ const PatientDashboard = () => {
   const name = patientData.fullName || 'Ramesh';
 
   const handleLogout = () => {
-    localStorage.removeItem('patientData');
+    localStorage.clear();
     setLanguage('');
     navigate('/');
   };
 
-  const dummyDoctors = [
-    { id: 1, name: "Dr. Sharma", specKey: "General Medicine", hospital: "District Hospital", dist: "2 km" },
-    { id: 2, name: "Dr. Verma", specKey: "Paediatrics (Children)", hospital: "City Clinic", dist: "4 km" },
-    { id: 3, name: "Dr. Patel", specKey: "Orthopaedics (Bones)", hospital: "Sanjeevani Hospital", dist: "6 km" }
-  ];
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const state = patientData.state || '';
+        if (!state) {
+          setLoading(false);
+          return;
+        }
+        const response = await fetch(`http://localhost:5000/api/doctors/nearby?state=${state}`);
+        if (response.ok) {
+          const data = await response.json();
+          setDoctors(data.doctors);
+        } else {
+          setDoctors([]);
+        }
+      } catch (error) {
+        console.error('Error fetching doctors:', error);
+        setDoctors([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDoctors();
+  }, [patientData.state]);
 
   return (
     <div className="dashboard-container patient-theme">
@@ -40,23 +62,29 @@ const PatientDashboard = () => {
           <h2 style={{ marginBottom: '4px' }}>{t('nearbyDoctors')}</h2>
           <p style={{ marginBottom: '16px' }}>{t('nearbyDoctorsSub')}</p>
 
-          {dummyDoctors.map((doc) => (
-            <div key={doc.id} className="card doctor-card">
-              <div className="doc-info">
-                <h3>{doc.name}</h3>
-                <p><strong>{t('specialization')}:</strong> {doc.specKey}</p>
-                <p><strong>{t('hospital')}:</strong> {doc.hospital}</p>
-                <p><strong>{t('distance')}:</strong> {doc.dist}</p>
+          {loading ? (
+            <p>Loading...</p>
+          ) : doctors.length > 0 ? (
+            doctors.map((doc) => (
+              <div key={doc.id} className="card doctor-card">
+                <div className="doc-info">
+                  <h3>{doc.name}</h3>
+                  <p><strong>{t('specialization')}:</strong> {doc.specialization}</p>
+                  <p><strong>{t('hospital')}:</strong> {doc.hospital}</p>
+                  <p><strong>{t('distance')}:</strong> Nearby</p>
+                </div>
+                <button 
+                  className="btn-primary large mt-4" 
+                  style={{ backgroundColor: 'var(--primary-green)' }}
+                  onClick={() => alert(t('requestSent'))}
+                >
+                  {t('requestConsult')}
+                </button>
               </div>
-              <button 
-                className="btn-primary large mt-4" 
-                style={{ backgroundColor: 'var(--primary-green)' }}
-                onClick={() => alert(t('requestSent'))}
-              >
-                {t('requestConsult')}
-              </button>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p>{t('noDoctorsFound')}</p>
+          )}
         </div>
 
         {/* Existing features below */}

@@ -4,7 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { INDIAN_STATES } from '../translations/translations';
 
 const PatientRegistration = () => {
-  const { t, language, setLanguage } = useLanguage();
+  const { t, setLanguage } = useLanguage();
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
@@ -39,15 +39,44 @@ const PatientRegistration = () => {
     setStep(2);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.street || !formData.villageCity || !formData.state) {
       alert(t('fillAllFields'));
       return;
     }
-    // Save to local storage for dummy usage
-    localStorage.setItem('patientData', JSON.stringify({ ...formData, role: 'patient' }));
-    navigate('/patient-dashboard');
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/patients/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.fullName,
+          age: formData.age,
+          gender: formData.gender,
+          mobile: formData.mobileNumber,
+          street: formData.street,
+          village: formData.villageCity,
+          state: formData.state,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('patientData', JSON.stringify({ ...data.patient, role: 'patient' }));
+        navigate('/patient-dashboard');
+      } else {
+        if (data.message === 'Mobile number already registered') {
+          alert(t('mobileExistsError'));
+        } else {
+          alert(data.message || 'Registration failed');
+        }
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('Network error, please try again later.');
+    }
   };
 
   const handleChangeLanguage = () => {

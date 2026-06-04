@@ -18,14 +18,41 @@ const DoctorRegistration = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.fullName || !formData.specialization || !formData.hospital || !formData.mobileNumber) {
       alert(t('fillAllFields'));
       return;
     }
-    // Dummy navigation
-    navigate('/doctor-dashboard');
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/doctors/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.fullName,
+          specialization: formData.specialization,
+          hospital: formData.hospital,
+          mobile: formData.mobileNumber,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('doctorData', JSON.stringify({ ...data.doctor, role: 'doctor' }));
+        navigate('/doctor-dashboard');
+      } else {
+        if (data.message === 'Mobile number already registered') {
+          alert(t('mobileExistsError'));
+        } else {
+          alert(data.message || 'Registration failed');
+        }
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('Network error, please try again later.');
+    }
   };
 
   const handleChangeLanguage = () => {
