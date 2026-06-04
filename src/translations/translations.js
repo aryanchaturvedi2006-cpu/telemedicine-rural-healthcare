@@ -3,14 +3,125 @@
 //  Add new keys here; use t('key') via LanguageContext
 // ─────────────────────────────────────────────────────────
 
-export const INDIAN_STATES = [
-  "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh",
-  "Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka",
-  "Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram",
-  "Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana",
-  "Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Delhi (NCT)",
-  "Jammu & Kashmir","Ladakh"
-];
+export const INDIAN_STATES_TRANSLATED = {
+  en: [
+    "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh",
+    "Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka",
+    "Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram",
+    "Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana",
+    "Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Delhi (NCT)",
+    "Jammu & Kashmir","Ladakh"
+  ],
+  hi: [
+    "आंध्र प्रदेश","अरुणाचल प्रदेश","असम","बिहार","छत्तीसगढ़",
+    "गोवा","गुजरात","हरियाणा","हिमाचल प्रदेश","झारखंड","कर्नाटक",
+    "केरल","मध्य प्रदेश","महाराष्ट्र","मणिपुर","मेघालय","मिज़ोरम",
+    "नागालैंड","ओडिशा","पंजाब","राजस्थान","सिक्किम","तमिल नाडु","तेलंगाना",
+    "त्रिपुरा","उत्तर प्रदेश","उत्तराखंड","पश्चिम बंगाल","दिल्ली (राष्ट्रीय राजधानी क्षेत्र)",
+    "जम्मू और कश्मीर","लद्दाख"
+  ],
+  mw: [
+    "आंध्र प्रदेश","अरुणाचल प्रदेश","असम","बिहार","छत्तीसगढ़",
+    "गोवा","गुजरात","हरियाणा","हिमाचल प्रदेश","झारखंड","कर्नाटक",
+    "केरल","मध्य प्रदेश","महाराष्ट्र","मणिपुर","मेघालय","मिज़ोरम",
+    "नागालैंड","ओडिशा","पंजाब","राजस्थान","सिक्किम","तमिल नाडु","तेलंगाना",
+    "त्रिपुरा","उत्तर प्रदेश","उत्तराखंड","पश्चिम बंगाल","दिल्ली (NCT)",
+    "जम्मू और कश्मीर","लद्दाख"
+  ],
+  gu: [
+    "આંધ્ર પ્રદેશ","અરુણાચલ પ્રદેશ","આસામ","બિહાર","છત્તીસગઢ",
+    "ગોવા","ગુજરાત","હરિયાણા","હિમાચલ પ્રદેશ","ઝારખંડ","કર્ણાટક",
+    "કેરળ","મધ્ય પ્રદેશ","મહારાષ્ટ્ર","મણિપુર","મેઘાલય","મિઝોરમ",
+    "નાગાલેન્ડ","ઓડિશા","પંજાબ","રાજસ્થાન","સિક્કિમ","તમિળ નાડુ","તેલંગાણા",
+    "ત્રિપુરા","ઉત્તર પ્રદેશ","ઉત્તરાખંડ","પશ્ચિમ બંગાળ","દિલ્હી (NCT)",
+    "જમ્મુ અને કાશ્મીર","લદ્દાખ"
+  ],
+  mr: [
+    "आंध्र प्रदेश","अरुणाचल प्रदेश","आसाम","बिहार","छत्तीसगड",
+    "गोवा","गुजरात","हरियाणा","हिमाचल प्रदेश","झारखंड","कर्नाटक",
+    "केरळ","मध्य प्रदेश","महाराष्ट्र","मणिपूर","मेघालय","मिझोरम",
+    "नागालँड","ओडिशा","पंजाब","राजस्थान","सिक्कीम","तमिळनाडू","तेलंगणा",
+    "त्रिपुरा","उत्तर प्रदेश","उत्तराखंड","पश्चिम बंगाल","दिल्ली (NCT)",
+    "जम्मू आणि काश्मीर","लडाख"
+  ],
+  ta: [
+    "ஆந்திர பிரதேசம்","அருணாசல பிரதேசம்","அசாம்","பிகார்","சத்தீஸ்கர்",
+    "கோவா","குஜராத்","ஹரியாணா","இமாசல பிரதேசம்","ஜார்கண்ட்","கர்நாடகா",
+    "கேரளா","மத்திய பிரதேசம்","மகாராஷ்டிரா","மணிப்பூர்","மேகாலயா","மிசோரம்",
+    "நாகாலாந்து","ஒடிசா","பஞ்சாப்","ராஜஸ்தான்","சிக்கிம்","தமிழ்நாடு","தெலுங்கானா",
+    "திரிபுரா","உத்தர பிரதேசம்","உத்தரகண்ட்","மேற்கு வங்கம்","டெல்லி (NCT)",
+    "ஜம்மு & காஷ்மீர்","லடாக்"
+  ],
+  te: [
+    "ఆంధ్ర ప్రదేశ్","అరుణాచల్ ప్రదేశ్","అసోం","బీహార్","ఛత్తీస్‌గఢ్",
+    "గోవా","గుజరాత్","హర్యానా","హిమాచల్ ప్రదేశ్","జార్ఖండ్","కర్ణాటక",
+    "కేరళ","మధ్యప్రదేశ్","మహారాష్ట్ర","మణిపూర్","మేఘాలయ","మిజోరమ్",
+    "నాగాలాండ్","ఒడిశా","పంజాబ్","రాజస్థాన్","సిక్కిం","తమిళనాడు","తెలంగాణ",
+    "త్రిపుర","ఉత్తర ప్రదేశ్","ఉత్తరాఖండ్","పశ్చిమ బెంగాల్","ఢిల్లీ (NCT)",
+    "జమ్మూ & కాశ్మీర్","లద్దాఖ్"
+  ],
+  pa: [
+    "ਆਂਧਰਾ ਪ੍ਰਦੇਸ਼","ਅਰੁਣਾਚਲ ਪ੍ਰਦੇਸ਼","ਅਸਾਮ","ਬਿਹਾਰ","ਛੱਤੀਸਗੜ੍ਹ",
+    "ਗੋਆ","ਗੁਜਰਾਤ","ਹਰਿਆਣਾ","ਹਿਮਾਚਲ ਪ੍ਰਦੇਸ਼","ਝਾਰਖੰਡ","ਕਰਨਾਟਕ",
+    "ਕੇਰਲਾ","ਮੱਧ ਪ੍ਰਦੇਸ਼","ਮਹਾਰਾਸ਼ਟਰ","ਮਣੀਪੁਰ","ਮੇਘਾਲਿਆ","ਮਿਜ਼ੋਰਮ",
+    "ਨਾਗਾਲੈਂਡ","ਓਡੀਸ਼ਾ","ਪੰਜਾਬ","ਰਾਜਸਥਾਨ","ਸਿੱਕਮ","ਤਮਿਲਨਾਡੂ","ਤੇਲੰਗਾਨਾ",
+    "ਤ੍ਰਿਪੁਰਾ","ਉੱਤਰ ਪ੍ਰਦੇਸ਼","ਉੱਤਰਾਖੰਡ","ਪੱਛਮੀ ਬੰਗਾਲ","ਦਿੱਲੀ (NCT)",
+    "ਜੰਮੂ ਅਤੇ ਕਸ਼ਮੀਰ","ਲੱਦਾਖ"
+  ],
+  bn: [
+    "অন্ধ্রপ্রদেশ","অরুণাচল প্রদেশ","আসাম","বিহার","ছত্তিশগড়",
+    "গোয়া","গুজরাট","হরিয়ানা","হিমাচল প্রদেশ","ঝাড়খণ্ড","কর্ণাটক",
+    "কেরালা","মধ্যপ্রদেশ","মহারাষ্ট্র","মণিপুর","মেঘালয়","মিজোরাম",
+    "নাগাল্যান্ড","ওডিশা","পাঞ্জাব","রাজস্থান","সিকিম","তামিলনাড়ু","তেলেঙ্গানা",
+    "ত্রিপুরা","উত্তরপ্রদেশ","উত্তরাখণ্ড","পশ্চিমবঙ্গ","দিল্লি (NCT)",
+    "জম্মু ও কাশ্মীর","লাদাখ"
+  ],
+  kn: [
+    "ಆಂಧ್ರ ಪ್ರದೇಶ","ಅರುಣಾಚಲ ಪ್ರದೇಶ","ಅಸ್ಸಾಂ","ಬಿಹಾರ","ಛತ್ತೀಸ್‌ಗಢ",
+    "ಗೋವಾ","ಗುಜರಾತ್","ಹರಿಯಾಣ","ಹಿಮಾಚಲ ಪ್ರದೇಶ","ಜಾರ್ಖಂಡ್","ಕರ್ನಾಟಕ",
+    "ಕೇರಳ","ಮಧ್ಯ ಪ್ರದೇಶ","ಮಹಾರಾಷ್ಟ್ರ","ಮಣಿಪುರ","ಮೇಘಾಲಯ","ಮಿಜೋರಂ",
+    "ನಾಗಾಲ್ಯಾಂಡ್","ಒಡಿಶಾ","ಪಂಜಾಬ್","ರಾಜಸ್ಥಾನ","ಸಿಕ್ಕಿಂ","ತಮಿಳುನಾಡು","ತೆಲಂಗಾಣ",
+    "ತ್ರಿಪುರಾ","ಉತ್ತರ ಪ್ರದೇಶ","ಉತ್ತರಾಖಂಡ","ಪಶ್ಚಿಮ ಬಂಗಾಳ","ದೆಹಲಿ (NCT)",
+    "ಜಮ್ಮು ಮತ್ತು ಕಾಶ್ಮೀರ","ಲಡಾಖ್"
+  ],
+  ml: [
+    "ആന്ധ്രാ പ്രദേശ്","അരുണാചൽ പ്രദേശ്","അസം","ബിഹാർ","ഛത്തീസ്ഗഢ്",
+    "ഗോവ","ഗുജറാത്ത്","ഹരിയാന","ഹിമാചൽ പ്രദേശ്","ഝാർഖണ്ഡ്","കർണ്ണാടക",
+    "കേരളം","മധ്യപ്രദേശ്","മഹാരാഷ്ട്ര","മണിപ്പൂർ","മേഘാലയ","മിസോറം",
+    "നാഗാലാൻഡ്","ഒഡിഷ","പഞ്ചാബ്","രാജസ്ഥാൻ","സിക്കിം","തമിഴ്‌നാട്","തെലങ്കാന",
+    "ത്രിപുര","ഉത്തർ പ്രദേശ്","ഉത്തരാഖണ്ഡ്","പശ്ചിമ ബംഗാൾ","ഡൽഹി (NCT)",
+    "ജമ്മു & കാശ്മീർ","ലഡാഖ്"
+  ],
+  as: [
+    "অন্ধ্ৰ প্ৰদেশ","অৰুণাচল প্ৰদেশ","অসম","বিহাৰ","ছত্তীশগড়",
+    "গোৱা","গুজৰাট","হৰিয়ানা","হিমাচল প্ৰদেশ","ঝাৰখণ্ড","কৰ্ণাটক",
+    "কেৰালা","মধ্য প্ৰদেশ","মহাৰাষ্ট্ৰ","মণিপুৰ","মেঘালয়","মিজোৰাম",
+    "নাগালেণ্ড","ওডিশা","পাঞ্জাব","ৰাজস্থান","ছিক্কিম","তামিলনাডু","তেলাঙ্গানা",
+    "ত্ৰিপুৰা","উত্তৰ প্ৰদেশ","উত্তৰাখণ্ড","পশ্চিমবংগ","দিল্লী (NCT)",
+    "জম্মু আৰু কাশ্মীৰ","লাদাখ"
+  ],
+  or: [
+    "ଆନ୍ଧ୍ର ପ୍ରଦେଶ","ଅରୁଣାଚଳ ପ୍ରଦେଶ","ଆସାମ","ବିହାର","ଛତ୍ତିଶଗଡ",
+    "ଗୋଆ","ଗୁଜରାଟ","ହରିୟାଣା","ହିମାଚଳ ପ୍ରଦେଶ","ଝାଡ଼ଖଣ୍ଡ","କର୍ଣ୍ଣାଟକ",
+    "କେରଳ","ମଧ୍ୟ ପ୍ରଦେଶ","ମହାରାଷ୍ଟ୍ର","ମଣିପୁର","ମେଘାଳୟ","ମିଜୋରାମ",
+    "ନାଗାଲ୍ୟାଣ୍ଡ","ଓଡ଼ିଶା","ପଞ୍ଜାବ","ରାଜସ୍ଥାନ","ସିକ୍କିମ","ତାମିଲ ନାଡୁ","ତେଲଙ୍ଗାଣା",
+    "ତ୍ରିପୁରା","ଉତ୍ତର ପ୍ରଦେଶ","ଉତ୍ତରାଖଣ୍ଡ","ପଶ୍ଚିମ ବଙ୍ଗ","ଦିଲ୍ଲୀ (NCT)",
+    "ଜାମ୍ମୁ ଓ କଶ୍ମୀର","ଲଦ୍ଦାଖ"
+  ],
+  nm: [
+    "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh",
+    "Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka",
+    "Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram",
+    "Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana",
+    "Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Delhi (NCT)",
+    "Jammu & Kashmir","Ladakh"
+  ],
+};
+
+export const getStates = (langCode) => {
+  return INDIAN_STATES_TRANSLATED[langCode] || INDIAN_STATES_TRANSLATED['en'];
+};
+
 
 export const SPECIALIZATIONS = [
   "General Medicine","Paediatrics (Children)","Gynaecology (Women)",
@@ -99,7 +210,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "पहले से खाता है? लॉगिन करें",
     "General Medicine": "सामान्य चिकित्सा",
     "Paediatrics (Children)": "बाल रोग",
     "Gynaecology (Women)": "स्त्री रोग",
@@ -178,7 +289,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "Already have an account? Login",
   },
 
   // ── MARWARI ────────────────────────────────────────────
@@ -242,7 +353,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "पैले सूं खातो है? लॉगिन करो",
     "General Medicine": "सामान्य चिकित्सा", "Paediatrics (Children)": "बाल रोग", "Gynaecology (Women)": "लुगायां रो रोग", "Cardiology (Heart)": "काळजा रो रोग", "Orthopaedics (Bones)": "हाडकां रो रोग", "Dermatology (Skin)": "चामड़ी रो रोग", "ENT (Ear Nose Throat)": "कान नाक गळो", "Ophthalmology (Eyes)": "आंख्यां रो रोग", "Psychiatry (Mental Health)": "दिमागी भली", "Dentistry": "दंत चिकित्सा", "Surgery": "शल्य चिकित्सा", "Neurology (Brain)": "दिमाग रो रोग", "Ayurveda": "आयुर्वेद", "Homoeopathy": "होम्योपैथी", "Physiotherapy": "फिजियोथेरेपी"
   },
 
@@ -307,7 +418,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "પહેલેથી ખાતું છે? લૉગિન કરો",
     "General Medicine": "સામાન્ય ચિકિત્સા", "Paediatrics (Children)": "બાળ રોગ", "Gynaecology (Women)": "સ્ત્રી રોગ", "Cardiology (Heart)": "હૃદય રોગ", "Orthopaedics (Bones)": "હાડકાંનો રોગ", "Dermatology (Skin)": "ચામડીનો રોગ", "ENT (Ear Nose Throat)": "કાન નાક ગળું", "Ophthalmology (Eyes)": "આંખનો રોગ", "Psychiatry (Mental Health)": "માનસિક સ્વાસ્થ્ય", "Dentistry": "દંત ચિકિત્સા", "Surgery": "શસ્ત્રક્રિયા", "Neurology (Brain)": "મગજનો રોગ", "Ayurveda": "આયુર્વેદ", "Homoeopathy": "હોમિયોપેથી", "Physiotherapy": "ફિઝિયોથેરાપી"
   },
 
@@ -372,7 +483,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "आधीच खाते आहे? लॉगिन करा",
     "General Medicine": "सामान्य चिकित्सा", "Paediatrics (Children)": "बालरोग", "Gynaecology (Women)": "स्त्रीरोग", "Cardiology (Heart)": "हृदयरोग", "Orthopaedics (Bones)": "हाडांचे आजार", "Dermatology (Skin)": "त्वचारोग", "ENT (Ear Nose Throat)": "कान नाक घसा", "Ophthalmology (Eyes)": "नेत्ररोग", "Psychiatry (Mental Health)": "मानसिक आरोग्य", "Dentistry": "दंतचिकित्सा", "Surgery": "शस्त्रक्रिया", "Neurology (Brain)": "मेंदूचे आजार", "Ayurveda": "आयुर्वेद", "Homoeopathy": "होमिओपॅथी", "Physiotherapy": "फिजिओथेरपी"
   },
 
@@ -437,7 +548,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "ஏற்கனவே கணக்கு உள்ளதா? உள்நுழையவும்",
     "General Medicine": "பொது மருத்துவம்", "Paediatrics (Children)": "குழந்தை மருத்துவம்", "Gynaecology (Women)": "மகளிர் மருத்துவம்", "Cardiology (Heart)": "இதய மருத்துவம்", "Orthopaedics (Bones)": "எலும்பு மருத்துவம்", "Dermatology (Skin)": "தோல் மருத்துவம்", "ENT (Ear Nose Throat)": "காது மூக்கு தொண்டை", "Ophthalmology (Eyes)": "கண் மருத்துவம்", "Psychiatry (Mental Health)": "மனநல மருத்துவம்", "Dentistry": "பல் மருத்துவம்", "Surgery": "அறுவை சிகிச்சை", "Neurology (Brain)": "நரம்பியல்", "Ayurveda": "ஆயுர்வேதம்", "Homoeopathy": "ஹோமியோபதி", "Physiotherapy": "பிசியோதெரபி"
   },
 
@@ -502,7 +613,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "ఇప్పటికే ఖాతా ఉందా? లాగిన్ అవ్వండి",
     "General Medicine": "జనరల్ మెడిసిన్", "Paediatrics (Children)": "పిల్లల వైద్యం", "Gynaecology (Women)": "స్త్రీల వైద్యం", "Cardiology (Heart)": "గుండె వైద్యం", "Orthopaedics (Bones)": "ఎముకల వైద్యం", "Dermatology (Skin)": "చర్మ వ్యాధులు", "ENT (Ear Nose Throat)": "చెవి ముక్కు గొంతు", "Ophthalmology (Eyes)": "కంటి వైద్యం", "Psychiatry (Mental Health)": "మానసిక ఆరోగ్యం", "Dentistry": "దంత వైద్యం", "Surgery": "శస్త్రచికిత్స", "Neurology (Brain)": "నరాల వైద్యం", "Ayurveda": "ఆయుర్వేదం", "Homoeopathy": "హోమియోపతి", "Physiotherapy": "ఫిజియోథెరపీ"
   },
 
@@ -567,7 +678,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "ਪਹਿਲਾਂ ਤੋਂ ਖਾਤਾ ਹੈ? ਲੌਗਿਨ ਕਰੋ",
     "General Medicine": "ਆਮ ਦਵਾਈ", "Paediatrics (Children)": "ਬੱਚਿਆਂ ਦੇ ਰੋਗ", "Gynaecology (Women)": "ਔਰਤਾਂ ਦੇ ਰੋਗ", "Cardiology (Heart)": "ਦਿਲ ਦੇ ਰੋਗ", "Orthopaedics (Bones)": "ਹੱਡੀਆਂ ਦੇ ਰੋਗ", "Dermatology (Skin)": "ਚਮੜੀ ਦੇ ਰੋਗ", "ENT (Ear Nose Throat)": "ਕੰਨ ਨੱਕ ਗਲਾ", "Ophthalmology (Eyes)": "ਅੱਖਾਂ ਦੇ ਰੋਗ", "Psychiatry (Mental Health)": "ਦਿਮਾਗੀ ਸਿਹਤ", "Dentistry": "ਦੰਦਾਂ ਦਾ ਇਲਾਜ", "Surgery": "ਸਰਜਰੀ", "Neurology (Brain)": "ਦਿਮਾਗ ਦੇ ਰੋਗ", "Ayurveda": "ਆਯੁਰਵੇਦ", "Homoeopathy": "ਹੋਮਿਓਪੈਥੀ", "Physiotherapy": "ਫਿਜ਼ੀਓਥੈਰੇਪੀ"
   },
 
@@ -632,7 +743,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "ইতিমধ্যে অ্যাকাউন্ট আছে? লগইন করুন",
     "General Medicine": "সাধারণ চিকিৎসা", "Paediatrics (Children)": "শিশুরোগ", "Gynaecology (Women)": "স্ত্রীরোগ", "Cardiology (Heart)": "হৃদরোগ", "Orthopaedics (Bones)": "হাড়ের রোগ", "Dermatology (Skin)": "চর্মরোগ", "ENT (Ear Nose Throat)": "কান নাক গলা", "Ophthalmology (Eyes)": "চোখের রোগ", "Psychiatry (Mental Health)": "মানসিক স্বাস্থ্য", "Dentistry": "দন্ত চিকিৎসা", "Surgery": "অস্ত্রোপচার", "Neurology (Brain)": "স্নায়ুরোগ", "Ayurveda": "আয়ুর্বেদ", "Homoeopathy": "হোমিওপ্যাথি", "Physiotherapy": "ফিজিওথেরাপি"
   },
 
@@ -697,7 +808,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "ಈಗಾಗಲೇ ಖಾತೆ ಇದೆಯೇ? ಲಾಗಿನ್ ಮಾಡಿ",
     "General Medicine": "ಸಾಮಾನ್ಯ ವೈದ್ಯಕೀಯ", "Paediatrics (Children)": "ಮಕ್ಕಳ ವೈದ್ಯಕೀಯ", "Gynaecology (Women)": "ಸ್ತ್ರೀರೋಗ", "Cardiology (Heart)": "ಹೃದಯ ರೋಗ", "Orthopaedics (Bones)": "ಮೂಳೆ ರೋಗ", "Dermatology (Skin)": "ಚರ್ಮ ರೋಗ", "ENT (Ear Nose Throat)": "ಕಿವಿ ಮೂಗು ಗಂಟಲು", "Ophthalmology (Eyes)": "ಕಣ್ಣಿನ ರೋಗ", "Psychiatry (Mental Health)": "ಮಾನಸಿಕ ಆರೋಗ್ಯ", "Dentistry": "ದಂತ ವೈದ್ಯಕೀಯ", "Surgery": "ಶಸ್ತ್ರಚಿಕಿತ್ಸೆ", "Neurology (Brain)": "ನರರೋಗ", "Ayurveda": "ಆಯುರ್ವೇದ", "Homoeopathy": "ಹೋಮಿಯೋಪತಿ", "Physiotherapy": "ಫಿಸಿಯೋಥೆರಪಿ"
   },
 
@@ -762,7 +873,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "ഇതിനകം അക്കൗണ്ട് ഉണ്ടോ? ലോഗിൻ ചെയ്യുക",
     "General Medicine": "ജനറൽ മെడిസിൻ", "Paediatrics (Children)": "കുട്ടികളുടെ ഡോക്ടർ", "Gynaecology (Women)": "സ്ത്രീരോഗം", "Cardiology (Heart)": "ഹൃദ്രോഗം", "Orthopaedics (Bones)": "അസ്ഥിരോഗം", "Dermatology (Skin)": "ചർമ്മരോഗം", "ENT (Ear Nose Throat)": "ഇഎൻടി", "Ophthalmology (Eyes)": "നേത്രരോഗം", "Psychiatry (Mental Health)": "മാനസികാരോഗ്യം", "Dentistry": "ദന്തരോഗം", "Surgery": "ശസ്ത്രക്രിയ", "Neurology (Brain)": "ന്യൂറോളജി", "Ayurveda": "ആയുർവേദം", "Homoeopathy": "ഹോമിയോപ്പതി", "Physiotherapy": "ഫിസിയോതെറാപ്പി"
   },
 
@@ -827,7 +938,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "ইতিমধ্যে একাউণ্ট আছে? লগইন কৰক",
     "General Medicine": "সাধাৰণ চিকিৎসা", "Paediatrics (Children)": "শিশুৰোগ", "Gynaecology (Women)": "স্ত্ৰীৰোগ", "Cardiology (Heart)": "হৃদৰোগ", "Orthopaedics (Bones)": "হাড়ৰ ৰোগ", "Dermatology (Skin)": "চৰ্মৰোগ", "ENT (Ear Nose Throat)": "কাণ নাক ডিঙি", "Ophthalmology (Eyes)": "চকুৰ ৰোগ", "Psychiatry (Mental Health)": "মানসিক স্বাস্থ্য", "Dentistry": "দাঁতৰ চিকিৎসা", "Surgery": "অস্ত্ৰোপচাৰ", "Neurology (Brain)": "স্নায়ুৰোগ", "Ayurveda": "আয়ুৰ্বেদ", "Homoeopathy": "হোমিঅ'পেথী", "Physiotherapy": "ফিজিঅ'থেৰাপী"
   },
 
@@ -892,7 +1003,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "ପୂର୍ବରୁ ଖାତା ଅଛି? ଲଗଇନ୍ କରନ୍ତୁ",
     "General Medicine": "ସାଧାରଣ ଚିକିତ୍ସା", "Paediatrics (Children)": "ଶିଶୁ ରୋଗ", "Gynaecology (Women)": "ସ୍ତ୍ରୀ ରୋଗ", "Cardiology (Heart)": "ହୃଦ୍ ରୋଗ", "Orthopaedics (Bones)": "ହାଡ଼ ରୋଗ", "Dermatology (Skin)": "ଚର୍ମ ରୋଗ", "ENT (Ear Nose Throat)": "କାନ ନାକ ଗଳା", "Ophthalmology (Eyes)": "ଆଖି ରୋଗ", "Psychiatry (Mental Health)": "ମାନସିକ ସ୍ୱାସ୍ଥ୍ୟ", "Dentistry": "ଦାନ୍ତ ଚିକିତ୍ସା", "Surgery": "ଶଲ୍ୟ ଚିକିତ୍ସା", "Neurology (Brain)": "ସ୍ନାୟୁ ରୋଗ", "Ayurveda": "ଆୟୁର୍ବେଦ", "Homoeopathy": "ହୋମିଓପାଥି", "Physiotherapy": "ଫିଜିଓଥେରାପି"
   },
 
@@ -957,7 +1068,7 @@ const T = {
     userNotFoundError: "Account not found",
     noDoctorsFound: "No doctors found in your area",
     login: "Login",
-    alreadyHaveAccountTile: "Already have account",
+    alreadyHaveAccountTile: "Already have an account? Login",
     "General Medicine": "Sadharon Dawa", "Paediatrics (Children)": "Bacha laga bimar", "Gynaecology (Women)": "Maiki laga bimar", "Cardiology (Heart)": "Dil laga bimar", "Orthopaedics (Bones)": "Haddi laga bimar", "Dermatology (Skin)": "Chamra laga bimar", "ENT (Ear Nose Throat)": "Kaan Nak Gala", "Ophthalmology (Eyes)": "Choku laga bimar", "Psychiatry (Mental Health)": "Dimag laga bimar", "Dentistry": "Daat laga bimar", "Surgery": "Operation", "Neurology (Brain)": "Dimag/Nerve laga bimar", "Ayurveda": "Ayurveda", "Homoeopathy": "Homoeopathy", "Physiotherapy": "Physiotherapy"
   },
 };

@@ -1,32 +1,16 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/common/Navbar';
+import API_BASE_URL from '../config';
 import './AuthPage.css';
-
-/* Demo accounts — replaced by real API calls in Phase 2 */
-const DEMO_USERS = [
-  {
-    id: 'p1', role: 'patient', email: 'patient@demo.com', password: 'demo1234',
-    name: 'Rajesh Kumar', age: 34, gender: 'Male', phone: '9876543210',
-    location: 'Rampur Village, Rajasthan',
-  },
-  {
-    id: 'd1', role: 'doctor', email: 'doctor@demo.com', password: 'demo1234',
-    name: 'Dr. Priya Sharma', phone: '9123456780', specialization: 'General Medicine',
-    hospital: 'District Primary Health Centre', location: 'Jaipur, Rajasthan',
-  },
-];
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const navigate   = useNavigate();
-  const location   = useLocation();
+  const navigate = useNavigate();
 
-  const defaultRole = location.state?.role || 'patient';
-  const [activeRole, setActiveRole] = useState(defaultRole);
-  const [form, setForm]     = useState({ email: '', password: '' });
-  const [error, setError]   = useState('');
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -34,32 +18,32 @@ export default function LoginPage() {
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    setTimeout(() => {
-      const matched = DEMO_USERS.find(
-        u => u.role === activeRole &&
-             u.email === form.email.trim().toLowerCase() &&
-             u.password === form.password
-      );
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/doctors/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      });
+      
+      const data = await response.json();
 
-      if (matched) {
-        login(matched);
-        navigate(matched.role === 'patient' ? '/patient/dashboard' : '/doctor/dashboard');
+      if (response.ok) {
+        login({ ...data.data, role: 'doctor' });
+        navigate('/doctor-dashboard');
       } else {
-        setError('Invalid email or password. Try the demo credentials below.');
+        setError(data.message || 'Login failed. Please check your credentials.');
       }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('An error occurred during login. Please try again later.');
+    } finally {
       setLoading(false);
-    }, 600);
-  };
-
-  const fillDemo = () => {
-    const demo = DEMO_USERS.find(u => u.role === activeRole);
-    setForm({ email: demo.email, password: demo.password });
-    setError('');
+    }
   };
 
   return (
@@ -67,7 +51,6 @@ export default function LoginPage() {
       <Navbar />
       <main className="auth-main">
         <div className="auth-card">
-          {/* Left panel */}
           <div className="auth-card__panel">
             <div className="auth-panel__logo">+</div>
             <h2 className="auth-panel__title">TeleMed Rural</h2>
@@ -82,49 +65,29 @@ export default function LoginPage() {
             </ul>
           </div>
 
-          {/* Right form */}
           <div className="auth-card__form">
-            <h2 className="auth-form__title">Sign In</h2>
-            <p className="auth-form__sub">Choose your account type to continue</p>
+            <h2 className="auth-form__title">Doctor Sign In</h2>
+            <p className="auth-form__sub">Access your doctor dashboard</p>
 
-            {/* Role selector */}
-            <div className="role-tabs">
-              <button
-                id="tab-patient"
-                className={`role-tab ${activeRole === 'patient' ? 'active' : ''}`}
-                onClick={() => { setActiveRole('patient'); setError(''); }}
-                type="button"
-              >
-                Patient
-              </button>
-              <button
-                id="tab-doctor"
-                className={`role-tab ${activeRole === 'doctor' ? 'active' : ''}`}
-                onClick={() => { setActiveRole('doctor'); setError(''); }}
-                type="button"
-              >
-                Doctor
-              </button>
-            </div>
-
-            {error && <div className="alert alert-danger">{error}</div>}
+            {error && <div className="alert alert-danger" style={{ color: 'red', marginBottom: '16px' }}>{error}</div>}
 
             <form onSubmit={handleSubmit} noValidate>
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: '16px' }}>
                 <label htmlFor="email">Email Address</label>
                 <input
                   id="email"
                   name="email"
                   type="email"
                   className="form-control"
-                  placeholder="you@example.com"
+                  placeholder="doctor@example.com"
                   value={form.email}
                   onChange={handleChange}
                   required
                   autoComplete="email"
+                  style={{ width: '100%', padding: '8px', marginTop: '4px' }}
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: '24px' }}>
                 <label htmlFor="password">Password</label>
                 <input
                   id="password"
@@ -136,6 +99,7 @@ export default function LoginPage() {
                   onChange={handleChange}
                   required
                   autoComplete="current-password"
+                  style={{ width: '100%', padding: '8px', marginTop: '4px' }}
                 />
               </div>
 
@@ -144,20 +108,15 @@ export default function LoginPage() {
                 type="submit"
                 className="btn btn-primary btn-full"
                 disabled={loading}
+                style={{ width: '100%', padding: '12px', backgroundColor: 'var(--primary-blue)', color: 'white', border: 'none', cursor: 'pointer' }}
               >
-                {loading ? <span className="spinner" /> : 'Sign In'}
+                {loading ? 'Signing In...' : 'Sign In'}
               </button>
             </form>
 
-            <div className="auth-demo-hint">
-              <button type="button" className="btn btn-ghost btn-sm btn-full" onClick={fillDemo}>
-                Fill demo {activeRole} credentials
-              </button>
-            </div>
-
-            <p className="auth-footer-link">
+            <p className="auth-footer-link" style={{ marginTop: '24px', textAlign: 'center' }}>
               Don&apos;t have an account?{' '}
-              <Link to="/register" className="text-primary fw-500">Register here</Link>
+              <Link to="/doctor-registration" className="text-primary fw-500">Register here</Link>
             </p>
           </div>
         </div>

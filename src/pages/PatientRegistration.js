@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { INDIAN_STATES } from '../translations/translations';
+import { getStates } from '../translations/translations';
 import API_BASE_URL from '../config';
 
 const PatientRegistration = () => {
-  const { t, setLanguage } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
@@ -231,7 +231,7 @@ const PatientRegistration = () => {
                 className="large-input"
               >
                 <option value="">{t('selectState')}</option>
-                {INDIAN_STATES.map((st) => (
+                {getStates(language).map((st) => (
                   <option key={st} value={st}>{st}</option>
                 ))}
               </select>

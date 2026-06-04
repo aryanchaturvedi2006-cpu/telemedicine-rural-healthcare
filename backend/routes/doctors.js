@@ -3,19 +3,16 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 
-// GET /api/doctors/nearby?state=Gujarat
 router.get('/nearby', async (req, res) => {
   try {
     const { state } = req.query;
     if (!state) {
       return res.status(400).json({ success: false, message: 'State query parameter is required' });
     }
-
     const [doctors] = await pool.query(
       'SELECT id, name, specialization, hospital_name, area, is_available FROM doctors WHERE state = ?',
       [state]
     );
-
     res.status(200).json({ success: true, data: doctors });
   } catch (error) {
     console.error('Error fetching nearby doctors:', error);
@@ -23,12 +20,14 @@ router.get('/nearby', async (req, res) => {
   }
 });
 
-// POST /api/doctors/register
 router.post('/register', async (req, res) => {
   try {
     const { name, email, mobile, specialization, hospital_name, area, state, password } = req.body;
 
-    // Check if email already exists
+    if (!name || !email || !mobile || !specialization || !hospital_name || !area || !state || !password) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
     const [existing] = await pool.query('SELECT id FROM doctors WHERE email = ?', [email]);
     if (existing.length > 0) {
       return res.status(400).json({ success: false, message: 'Email already registered' });
@@ -44,30 +43,30 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({ success: true, message: 'Doctor registered successfully' });
   } catch (error) {
-    console.error('Error registering doctor:', error);
+    console.error('Error registering doctor:', error.message, error.code);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
-// POST /api/doctors/login
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
     const [doctors] = await pool.query('SELECT * FROM doctors WHERE email = ?', [email]);
-    
     if (doctors.length === 0) {
       return res.status(404).json({ success: false, message: 'Invalid credentials' });
     }
 
     const doctor = doctors[0];
     const isMatch = await bcrypt.compare(password, doctor.password);
-
     if (!isMatch) {
       return res.status(400).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Remove password before sending
     delete doctor.password;
     res.status(200).json({ success: true, data: doctor });
   } catch (error) {
@@ -76,7 +75,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// PATCH /api/doctors/:id/availability
 router.patch('/:id/availability', async (req, res) => {
   try {
     const doctorId = req.params.id;

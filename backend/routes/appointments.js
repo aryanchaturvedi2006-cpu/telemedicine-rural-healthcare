@@ -7,6 +7,10 @@ router.post('/book', async (req, res) => {
   try {
     const { patient_id, doctor_id, date, time, mode, symptoms } = req.body;
 
+    if (!patient_id || !doctor_id || !date || !time || !mode || !symptoms) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
     const [result] = await pool.query(
       'INSERT INTO appointments (patient_id, doctor_id, date, time, mode, symptoms) VALUES (?, ?, ?, ?, ?, ?)',
       [patient_id, doctor_id, date, time, mode, symptoms]

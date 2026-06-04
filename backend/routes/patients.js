@@ -7,6 +7,10 @@ router.post('/register', async (req, res) => {
   try {
     const { name, age, gender, mobile, street, village, state } = req.body;
 
+    if (!name || !age || !gender || !mobile || !street || !village || !state) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
     // Check if mobile already exists
     const [existing] = await pool.query('SELECT id FROM patients WHERE TRIM(mobile) = TRIM(?)', [mobile]);
     if (existing.length > 0) {
@@ -29,6 +33,10 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { mobile } = req.body;
+
+    if (!mobile) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
 
     const [patients] = await pool.query('SELECT * FROM patients WHERE TRIM(mobile) = TRIM(?)', [mobile]);
     
