@@ -22,7 +22,14 @@ router.post('/register', async (req, res) => {
       [name, age, gender, mobile, street, village, state]
     );
 
-    res.status(201).json({ success: true, patientId: result.insertId });
+    res.status(201).json({
+      success: true,
+      patient: {
+        id: result.insertId,
+        name, age, gender, mobile,
+        street, village, state
+      }
+    });
   } catch (error) {
     console.error('Error registering patient:', error);
     res.status(500).json({ success: false, message: 'Server error' });

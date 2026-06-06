@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { getStates } from '../translations/translations';
 import API_BASE_URL from '../config';
 
 const PatientRegistration = () => {
   const { t, language, setLanguage } = useLanguage();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
@@ -65,7 +67,9 @@ const PatientRegistration = () => {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('currentPatient', JSON.stringify({ ...data.patient, role: 'patient' }));
+        const patientObj = { ...data.patient, role: 'patient' };
+        login(patientObj);
+        localStorage.setItem('currentPatient', JSON.stringify(patientObj));
         navigate('/patient-dashboard');
       } else {
         if (data.message === 'Mobile number already registered') {
@@ -231,8 +235,8 @@ const PatientRegistration = () => {
                 className="large-input"
               >
                 <option value="">{t('selectState')}</option>
-                {getStates(language).map((st) => (
-                  <option key={st} value={st}>{st}</option>
+                {getStates(language).map((st, idx) => (
+                  <option key={idx} value={getStates('en')[idx]}>{st}</option>
                 ))}
               </select>
             </div>
