@@ -78,6 +78,26 @@ const DoctorDashboard = () => {
     }
   };
 
+  const handleStatusUpdate = async (appointmentId, status) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/appointments/${appointmentId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (res.ok) {
+        // re-fetch appointments
+        const apptRes = await fetch(`${API_BASE_URL}/api/appointments/doctor/${doctorId}`);
+        if (apptRes.ok) {
+          const apptData = await apptRes.json();
+          setAppointments(apptData.data || []);
+        }
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+    }
+  };
+
   const pendingAppts = appointments.filter(a => a.status === 'pending');
   const confirmedAppts = appointments.filter(a => a.status === 'confirmed');
 
@@ -149,6 +169,16 @@ const DoctorDashboard = () => {
                 <p><strong>Date:</strong> {appt.date} at {appt.time}</p>
                 <p><strong>Mode:</strong> {appt.mode}</p>
                 <p><strong>Symptoms:</strong> {appt.symptoms}</p>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                  <button onClick={() => handleStatusUpdate(appt.id, 'confirmed')}
+                    style={{ flex: 1, padding: '8px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>
+                    {t('accept')}
+                  </button>
+                  <button onClick={() => handleStatusUpdate(appt.id, 'cancelled')}
+                    style={{ flex: 1, padding: '8px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>
+                    {t('decline')}
+                  </button>
+                </div>
               </div>
             ))
           ) : (

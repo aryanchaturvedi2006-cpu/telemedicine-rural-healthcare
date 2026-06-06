@@ -29,7 +29,7 @@ const Landing = () => {
         <div 
           className="card hero-card" 
           style={{ backgroundColor: 'var(--primary-blue)', cursor: 'pointer' }}
-          onClick={() => navigate('/doctor-registration')}
+          onClick={() => navigate('/doctor-login')}
         >
           <h2>{t('iAmDoctor')}</h2>
         </div>
