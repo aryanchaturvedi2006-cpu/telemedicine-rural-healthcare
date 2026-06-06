@@ -9,7 +9,7 @@ const DoctorDashboard = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const doctorData = JSON.parse(localStorage.getItem('currentPatient') || '{}');
+  const doctorData = JSON.parse(localStorage.getItem('tele_user') || '{}');
   const doctorId = doctorData.id;
   const doctorName = doctorData.name || 'Doctor';
 

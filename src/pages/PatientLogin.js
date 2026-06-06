@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import API_BASE_URL from '../config';
 
 const PatientLogin = () => {
   const { t, setLanguage } = useLanguage();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [mobileNumber, setMobileNumber] = useState('');
@@ -26,7 +28,9 @@ const PatientLogin = () => {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('currentPatient', JSON.stringify({ ...data.patient, role: 'patient' }));
+        const patientObj = { ...data.data, role: 'patient' };
+        login(patientObj);
+        localStorage.setItem('currentPatient', JSON.stringify(patientObj));
         navigate('/patient-dashboard');
       } else {
         if (data.message === 'Patient not found') {
