@@ -80,6 +80,7 @@ MEDICAL RULES:
 - Always recommend seeing a real doctor for serious conditions
 - Keep responses simple — rural users with basic education
 - Maximum 4-5 lines per response, easy words only
+- NEVER output internal thoughts, 'Draft 1', 'Draft 2', or drafting process. Output ONLY the final direct response to the user.
 - End every response with whether they should see a doctor:
   'Doctor se milna chahiye: Haan urgently / Haan jab ho sake / 
   Zaroorat nahi' (phrase this in user's language)`;
@@ -90,7 +91,7 @@ MEDICAL RULES:
       }));
 
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
