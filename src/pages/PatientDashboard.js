@@ -3,13 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import API_BASE_URL from '../config';
+import './TeleMedGlobal.css';
 
 const PatientDashboard = () => {
   const { t, setLanguage } = useLanguage();
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const patientData = JSON.parse(localStorage.getItem('currentPatient') || '{}');
+  // Read from local storage fallback
+  const localPatient = JSON.parse(localStorage.getItem('patientData') || '{}');
+  const sessionPatient = JSON.parse(localStorage.getItem('currentPatient') || '{}');
+  
+  // Prefer sessionPatient, fallback to localPatient
+  const patientData = sessionPatient.name ? sessionPatient : localPatient;
   const name = patientData.name || 'Patient';
   const patientId = patientData.id;
 
@@ -62,11 +68,11 @@ const PatientDashboard = () => {
     };
     fetchDoctors();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [patientData.state]);
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      if (!patientId) { setApptLoading(false); return; }
+      if (!patientId || patientId === 'local-temp-id') { setApptLoading(false); return; }
       try {
         const res = await fetch(`${API_BASE_URL}/api/appointments/patient/${patientId}`);
         if (res.ok) {
@@ -118,7 +124,6 @@ const PatientDashboard = () => {
       if (res.ok) {
         setBookSuccess('Appointment booked successfully!');
         setBookForm({ doctor_id: '', date: '', time: '', mode: 'video', symptoms: '' });
-        // Refresh appointments list
         const apptRes = await fetch(`${API_BASE_URL}/api/appointments/patient/${patientId}`);
         if (apptRes.ok) {
           const apptData = await apptRes.json();
@@ -140,43 +145,45 @@ const PatientDashboard = () => {
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
   };
   const modalStyle = {
-    background: '#fff', borderRadius: '12px', padding: '28px', width: '100%',
+    background: '#fff', borderRadius: '16px', padding: '24px', width: '100%',
     maxWidth: '480px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
   };
   const inputStyle = {
-    width: '100%', padding: '8px 10px', border: '1px solid #d1d5db',
-    borderRadius: '6px', fontSize: '14px', marginTop: '4px', boxSizing: 'border-box',
+    width: '100%', padding: '12px 16px', border: '1.5px solid #E0E0E0',
+    borderRadius: '10px', fontSize: '15px', marginTop: '4px', boxSizing: 'border-box',
   };
-  const labelStyle = { fontSize: '13px', fontWeight: 600, color: '#374151', display: 'block' };
+  const labelStyle = { fontSize: '13px', fontWeight: 600, color: '#555', display: 'block' };
 
   return (
-    <div className="dashboard-container patient-theme">
-      <header className="dash-header">
-        <div className="header-info">
-          <h1>{t('hello')}, {name}</h1>
-          <p>{t('healthCenter')}</p>
-        </div>
-        <button className="btn-secondary small" onClick={handleLogout}>
-          {t('logout')}
-        </button>
-      </header>
+    <div className="tm-page-container">
+      <button className="tm-back-btn" onClick={() => navigate(-1)}>
+        ← Back
+      </button>
 
-      <div className="dash-body">
-
-        {/* Book Consultation */}
-        <div className="card hero-card" style={{ cursor: 'pointer' }} onClick={() => { setShowModal(true); setBookError(''); setBookSuccess(''); }}>
-          <h2>{t('bookConsult')}</h2>
-          <p>{t('bookConsultSub')}</p>
+      <div className="tm-dashboard-content">
+        <div className="tm-card tm-header-card">
+          <div className="tm-header-info">
+            <h1 className="tm-greeting">Hello, {name} 👋</h1>
+            <p className="tm-header-sub">Your Health Centre</p>
+          </div>
+          <button className="tm-logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
 
-        {/* Appointments */}
-        <div style={{ marginTop: '24px', marginBottom: '24px' }}>
-          <h2 style={{ marginBottom: '12px' }}>{t('upcomingConsult')}</h2>
+        <div className="tm-book-consultation-card" onClick={() => { setShowModal(true); setBookError(''); setBookSuccess(''); }}>
+          <h2 className="tm-book-title">🩺 Book a Consultation</h2>
+          <p className="tm-book-sub">Talk to a verified doctor now</p>
+          <div className="tm-book-arrow">→</div>
+        </div>
+
+        <div className="tm-section">
+          <h2 className="tm-section-heading">📅 Upcoming Consultations</h2>
           {apptLoading ? (
             <p>Loading...</p>
           ) : appointments.length > 0 ? (
             appointments.map((appt) => (
-              <div key={appt.id} className="card" style={{ marginBottom: '12px', padding: '16px' }}>
+              <div key={appt.id} className="tm-card tm-appt-card">
                 <p><strong>Doctor:</strong> {appt.doctor_name} ({appt.specialization})</p>
                 <p><strong>Hospital:</strong> {appt.hospital_name}</p>
                 <p><strong>Date:</strong> {appt.date} at {appt.time}</p>
@@ -186,63 +193,63 @@ const PatientDashboard = () => {
               </div>
             ))
           ) : (
-            <p style={{ color: '#6b7280' }}>{t('noConsult')}</p>
+            <div className="tm-empty-state">
+              <div className="tm-empty-icon">📋</div>
+              <div className="tm-empty-text">No consultations yet</div>
+              <div className="tm-empty-sub">Book your first consultation above</div>
+            </div>
           )}
         </div>
 
-        {/* Nearby Doctors */}
-        <div className="nearby-doctors" style={{ marginBottom: '24px' }}>
-          <h2 style={{ marginBottom: '4px' }}>{t('nearbyDoctors')}</h2>
-          <p style={{ marginBottom: '16px' }}>{t('nearbyDoctorsSub')}</p>
+        <div className="tm-section">
+          <h2 className="tm-section-heading">📍 Nearby Doctors</h2>
           {doctorsLoading ? (
             <p>Loading...</p>
           ) : doctors.length > 0 ? (
             doctors.map((doc) => (
-              <div key={doc.id} className="card doctor-card" style={{ marginBottom: '12px' }}>
-                <div className="doc-info">
+              <div key={doc.id} className="tm-card tm-doctor-card">
+                <div className="tm-doc-info">
                   <h3>{doc.name}</h3>
                   <p><strong>{t('specialization')}:</strong> {doc.specialization}</p>
                   <p><strong>{t('hospital')}:</strong> {doc.hospital_name}</p>
                 </div>
                 <button
-                  className="btn-primary large mt-4"
-                  style={{ backgroundColor: 'var(--primary-green)', marginTop: '8px' }}
+                  className="tm-btn-primary"
                   onClick={() => { setShowModal(true); setBookForm(prev => ({ ...prev, doctor_id: doc.id })); }}
+                  style={{ width: '100%', marginTop: '16px' }}
                 >
                   {t('requestConsult')}
                 </button>
               </div>
             ))
           ) : (
-            <p>{t('noDoctorsFound')}</p>
+            <div className="tm-empty-state">
+              <div className="tm-empty-icon">🏥</div>
+              <div className="tm-empty-text">No doctors found nearby</div>
+              <div className="tm-empty-sub">We're adding more doctors in your area</div>
+            </div>
           )}
         </div>
 
-        <div className="action-grid mt-4" style={{ marginTop: '16px' }}>
-          <div className="card small-card" onClick={() => alert(t('comingSoon'))}>
-            <h3>{t('myRecords')}</h3>
-            <p>{t('comingSoon')}</p>
+        <div className="tm-card tm-records-card" onClick={() => alert('Feature coming soon!')} style={{ cursor: 'pointer' }}>
+          <div className="tm-records-left">
+            <div className="tm-records-icon">📁</div>
+            <h2 className="tm-records-title">My Health Records</h2>
+            <div className="tm-badge-coming-soon">Coming Soon</div>
           </div>
+          <p className="tm-records-sub" style={{ marginTop: '8px' }}>Your prescriptions and test reports will appear here</p>
         </div>
       </div>
 
-      {/* Book Consultation Modal */}
       {showModal && (
         <div style={modalOverlayStyle}>
           <div style={modalStyle}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h2 style={{ margin: 0, fontSize: '20px' }}>{t('bookConsult')}</h2>
-              <button
-                onClick={() => setShowModal(false)}
-                style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: '#6b7280' }}
-              >
-                &times;
-              </button>
+              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: '#6b7280' }}>&times;</button>
             </div>
-
             {bookError && <p style={{ color: 'red', marginBottom: '12px', fontSize: '14px' }}>{bookError}</p>}
             {bookSuccess && <p style={{ color: 'green', marginBottom: '12px', fontSize: '14px' }}>{bookSuccess}</p>}
-
             <form onSubmit={handleBookSubmit}>
               <div style={{ marginBottom: '14px' }}>
                 <label style={labelStyle}>Doctor</label>
@@ -253,17 +260,14 @@ const PatientDashboard = () => {
                   ))}
                 </select>
               </div>
-
               <div style={{ marginBottom: '14px' }}>
                 <label style={labelStyle}>Date</label>
                 <input type="date" name="date" value={bookForm.date} onChange={handleBookChange} style={inputStyle} required />
               </div>
-
               <div style={{ marginBottom: '14px' }}>
                 <label style={labelStyle}>Time</label>
                 <input type="time" name="time" value={bookForm.time} onChange={handleBookChange} style={inputStyle} required />
               </div>
-
               <div style={{ marginBottom: '14px' }}>
                 <label style={labelStyle}>Mode</label>
                 <select name="mode" value={bookForm.mode} onChange={handleBookChange} style={inputStyle}>
@@ -272,41 +276,13 @@ const PatientDashboard = () => {
                   <option value="in-person">In Person</option>
                 </select>
               </div>
-
               <div style={{ marginBottom: '20px' }}>
                 <label style={labelStyle}>Symptoms / Reason</label>
-                <textarea
-                  name="symptoms"
-                  value={bookForm.symptoms}
-                  onChange={handleBookChange}
-                  rows={3}
-                  style={{ ...inputStyle, resize: 'vertical' }}
-                  placeholder="Describe your symptoms..."
-                  required
-                />
+                <textarea name="symptoms" value={bookForm.symptoms} onChange={handleBookChange} rows={3} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Describe your symptoms..." required />
               </div>
-
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button
-                  type="submit"
-                  disabled={booking}
-                  style={{
-                    flex: 1, padding: '10px', background: 'var(--primary-green)',
-                    color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600,
-                  }}
-                >
-                  {booking ? 'Booking...' : 'Confirm Booking'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  style={{
-                    flex: 1, padding: '10px', background: '#f3f4f6',
-                    color: '#374151', border: 'none', borderRadius: '8px', cursor: 'pointer',
-                  }}
-                >
-                  Cancel
-                </button>
+                <button type="submit" disabled={booking} className="tm-btn-primary" style={{ flex: 1 }}>{booking ? 'Booking...' : 'Confirm Booking'}</button>
+                <button type="button" onClick={() => setShowModal(false)} className="tm-btn-secondary" style={{ flex: 1 }}>Cancel</button>
               </div>
             </form>
           </div>

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import Navbar from '../components/common/Navbar';
 import API_BASE_URL from '../config';
-import './AuthPage.css';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -36,7 +34,7 @@ export default function LoginPage() {
         login({ ...data.data, role: 'doctor' });
         navigate('/doctor-dashboard');
       } else {
-        setError(data.message || 'Login failed. Please check your credentials.');
+        setError(data.message || 'Invalid credentials. Please check your email and password.');
       }
     } catch (err) {
       console.error('Login error:', err);
@@ -46,81 +44,157 @@ export default function LoginPage() {
     }
   };
 
+  const containerStyle = {
+    minHeight: '100vh',
+    backgroundColor: '#F0F4FF',
+    fontFamily: "system-ui, 'Segoe UI', Arial, sans-serif",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    padding: '16px',
+    boxSizing: 'border-box'
+  };
+
+  const backBtnStyle = {
+    position: 'absolute',
+    top: '16px',
+    left: '16px',
+    background: 'none',
+    border: 'none',
+    color: '#1565C0',
+    fontSize: '15px',
+    cursor: 'pointer',
+    minHeight: '52px',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 8px'
+  };
+
+  const cardStyle = {
+    backgroundColor: '#fff',
+    maxWidth: '440px',
+    width: '100%',
+    padding: '32px',
+    borderRadius: '16px',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+    boxSizing: 'border-box'
+  };
+
+  const inputStyle = {
+    width: '100%',
+    height: '48px',
+    borderRadius: '10px',
+    border: '1.5px solid #E0E0E0',
+    padding: '12px 16px',
+    fontSize: '15px',
+    boxSizing: 'border-box',
+    outline: 'none',
+    fontFamily: 'inherit'
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '13px',
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: '6px'
+  };
+
+  const btnStyle = {
+    width: '100%',
+    height: '52px',
+    backgroundColor: '#1565C0',
+    color: '#fff',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    border: 'none',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    marginTop: '8px'
+  };
+
+  const errorStyle = {
+    backgroundColor: '#E3F2FD',
+    borderLeft: '4px solid #C62828',
+    color: '#C62828',
+    padding: '12px 16px',
+    borderRadius: '8px',
+    fontSize: '14px',
+    marginBottom: '12px'
+  };
+
   return (
-    <div className="auth-page">
-      <Navbar />
-      <main className="auth-main">
-        <div className="auth-card">
-          <div className="auth-card__panel">
-            <div className="auth-panel__logo">+</div>
-            <h2 className="auth-panel__title">TeleMed Rural</h2>
-            <p className="auth-panel__sub">
-              Bringing quality healthcare to every corner of rural India through technology.
-            </p>
-            <ul className="auth-panel__list">
-              <li>Secure doctor-patient consultations</li>
-              <li>AI-assisted symptom checker</li>
-              <li>Digital health records</li>
-              <li>Accessible from any device</li>
-            </ul>
+    <div style={containerStyle}>
+      <button 
+        style={backBtnStyle} 
+        onClick={() => navigate(-1)}
+        onMouseOver={(e) => e.target.style.color = '#0D47A1'}
+        onMouseOut={(e) => e.target.style.color = '#1565C0'}
+      >
+        ← Back
+      </button>
+      
+      <div style={cardStyle}>
+        <div style={{ textAlign: 'center', fontSize: '44px', marginBottom: '8px' }}>👨‍⚕️</div>
+        <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1565C0', textAlign: 'center', margin: '0 0 4px 0' }}>Doctor Sign In</h2>
+        <p style={{ fontSize: '13px', color: '#555', textAlign: 'center', margin: '0' }}>Access your patient dashboard</p>
+        
+        <div style={{ borderTop: '1px solid #E0E0E0', margin: '16px 0' }}></div>
+        
+        <form onSubmit={handleSubmit} noValidate>
+          <div style={{ marginBottom: '16px' }}>
+            <label htmlFor="email" style={labelStyle}>Email Address</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="doctor@example.com"
+              value={form.email}
+              onChange={handleChange}
+              required
+              autoComplete="email"
+              style={inputStyle}
+              onFocus={(e) => e.target.style.borderColor = '#1565C0'}
+              onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+            />
+          </div>
+          
+          <div style={{ marginBottom: '24px' }}>
+            <label htmlFor="password" style={labelStyle}>Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              value={form.password}
+              onChange={handleChange}
+              required
+              autoComplete="current-password"
+              style={inputStyle}
+              onFocus={(e) => e.target.style.borderColor = '#1565C0'}
+              onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+            />
           </div>
 
-          <div className="auth-card__form">
-            <h2 className="auth-form__title">Doctor Sign In</h2>
-            <p className="auth-form__sub">Access your doctor dashboard</p>
+          {error && <div style={errorStyle}>⚠️ {error}</div>}
 
-            {error && <div className="alert alert-danger" style={{ color: 'red', marginBottom: '16px' }}>{error}</div>}
+          <button
+            type="submit"
+            disabled={loading}
+            style={btnStyle}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#0D47A1'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#1565C0'}
+          >
+            {loading ? 'Signing In...' : 'Sign In'}
+          </button>
+        </form>
 
-            <form onSubmit={handleSubmit} noValidate>
-              <div className="form-group" style={{ marginBottom: '16px' }}>
-                <label htmlFor="email">Email Address</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  className="form-control"
-                  placeholder="doctor@example.com"
-                  value={form.email}
-                  onChange={handleChange}
-                  required
-                  autoComplete="email"
-                  style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-                />
-              </div>
-              <div className="form-group" style={{ marginBottom: '24px' }}>
-                <label htmlFor="password">Password</label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  className="form-control"
-                  placeholder="Enter your password"
-                  value={form.password}
-                  onChange={handleChange}
-                  required
-                  autoComplete="current-password"
-                  style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-                />
-              </div>
-
-              <button
-                id="btn-login-submit"
-                type="submit"
-                className="btn btn-primary btn-full"
-                disabled={loading}
-                style={{ width: '100%', padding: '12px', backgroundColor: 'var(--primary-blue)', color: 'white', border: 'none', cursor: 'pointer' }}
-              >
-                {loading ? 'Signing In...' : 'Sign In'}
-              </button>
-            </form>
-
-            <p className="auth-footer-link" style={{ marginTop: '24px', textAlign: 'center' }}>
-              Don&apos;t have an account?{' '}
-              <Link to="/doctor-registration" className="text-primary fw-500">Register here</Link>
-            </p>
-          </div>
-        </div>
-      </main>
+        <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: '#555' }}>
+          Don't have an account?{' '}
+          <Link to="/doctor-registration" style={{ color: '#1565C0', textDecoration: 'none' }}>Register here →</Link>
+        </p>
+      </div>
     </div>
   );
 }

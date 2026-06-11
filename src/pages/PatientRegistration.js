@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { getStates } from '../translations/translations';
 import API_BASE_URL from '../config';
+import './TeleMedGlobal.css';
 
 const PatientRegistration = () => {
   const { t, language, setLanguage } = useLanguage();
@@ -11,6 +12,7 @@ const PatientRegistration = () => {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
+  const [networkError, setNetworkError] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     age: '',
@@ -80,181 +82,91 @@ const PatientRegistration = () => {
       }
     } catch (error) {
       console.error('Registration error:', error);
-      alert('Network error, please try again later.');
+      setNetworkError(true);
+      const patientObj = {
+        name: formData.fullName,
+        age: formData.age,
+        gender: formData.gender,
+        mobile: formData.mobileNumber,
+        street: formData.street,
+        village: formData.villageCity,
+        state: formData.state,
+        role: 'patient',
+        id: 'local-temp-id'
+      };
+      localStorage.setItem('patientData', JSON.stringify(patientObj));
+      // Optionally also set currentPatient for other hooks
+      localStorage.setItem('currentPatient', JSON.stringify(patientObj));
+      login(patientObj);
+      setTimeout(() => {
+        navigate('/patient-dashboard');
+      }, 1500); // Give them time to see the error message
     }
   };
 
-  const handleChangeLanguage = () => {
-    setLanguage('');
-    navigate('/');
-  };
-
   return (
-    <div className="form-container">
-      <div className="top-bar">
-        {step === 2 && (
-          <button className="btn-text" style={{ marginRight: 'auto' }} onClick={() => setStep(1)}>
-            ← {t('back')}
-          </button>
-        )}
-        <button className="btn-secondary small" onClick={handleChangeLanguage}>
-          {t('changeLanguage')}
-        </button>
-      </div>
+    <div className="tm-page-container">
+      <button className="tm-back-btn" onClick={() => step === 2 ? setStep(1) : navigate(-1)}>
+        ← Back
+      </button>
 
-      <div className="form-card">
-        <div className="form-header">
-          <h2>{step === 1 ? t('step1Title') : t('step2Title')}</h2>
-          <p>{step === 1 ? t('step1Sub') : t('step2Sub')}</p>
+      <div className="tm-card tm-form-card">
+        <div className="tm-progress-bar-container">
+          <div className="tm-progress-text">Step {step} of 2</div>
+          <div className="tm-progress-bg">
+            <div className="tm-progress-fill" style={{ width: step === 1 ? '50%' : '100%' }}></div>
+          </div>
         </div>
 
+        <h2 className="tm-form-title">{step === 1 ? 'Tell us about yourself' : 'Where are you located?'}</h2>
+        <p className="tm-form-subtitle">{step === 1 ? 'Enter your details to get started' : 'Help us find doctors near you'}</p>
+
         {step === 1 ? (
-          <form onSubmit={handleNext} className="form-body">
-            <div className="input-group">
-              <label>{t('fullName')}</label>
-              <input 
-                type="text" 
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder={t('fullNamePH')} 
-                className="large-input"
-              />
-            </div>
-
-            <div className="input-group">
-              <label>{t('age')}</label>
-              <input 
-                type="number" 
-                name="age"
-                min="1"
-                max="120"
-                value={formData.age}
-                onChange={handleChange}
-                placeholder={t('agePH')} 
-                className="large-input"
-              />
-            </div>
-
-            <div className="input-group">
-              <label>{t('mobileNumber')}</label>
-              <input 
-                type="number" 
-                name="mobileNumber"
-                value={formData.mobileNumber}
-                onChange={handleChange}
-                placeholder={t('mobileNumberPH')} 
-                className="large-input"
-              />
-            </div>
-
-            <div className="input-group">
-              <label>{t('gender')}</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button 
+          <form onSubmit={handleNext} className="tm-form">
+            <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder={t('fullNamePH')} className="tm-input" />
+            <input type="number" name="age" min="1" max="120" value={formData.age} onChange={handleChange} placeholder={t('agePH')} className="tm-input" />
+            <input type="number" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} placeholder={t('mobileNumberPH')} className="tm-input" />
+            
+            <div className="tm-gender-selector">
+              {['Male', 'Female', 'Other'].map(g => (
+                <button
+                  key={g}
                   type="button"
-                  className="large-input"
-                  style={{ 
-                    flex: 1, 
-                    backgroundColor: formData.gender === 'Male' ? 'var(--primary-green)' : 'white',
-                    color: formData.gender === 'Male' ? 'white' : 'var(--text-main)',
-                    borderColor: formData.gender === 'Male' ? 'var(--primary-green)' : 'var(--border-color)',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => setGender('Male')}
+                  className={`tm-gender-btn ${formData.gender === g ? 'selected' : ''}`}
+                  onClick={() => setGender(g)}
                 >
-                  {t('male')}
+                  {g === 'Male' ? t('male') : g === 'Female' ? t('female') : t('other')}
                 </button>
-                <button 
-                  type="button"
-                  className="large-input"
-                  style={{ 
-                    flex: 1, 
-                    backgroundColor: formData.gender === 'Female' ? 'var(--primary-green)' : 'white',
-                    color: formData.gender === 'Female' ? 'white' : 'var(--text-main)',
-                    borderColor: formData.gender === 'Female' ? 'var(--primary-green)' : 'var(--border-color)',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => setGender('Female')}
-                >
-                  {t('female')}
-                </button>
-                <button 
-                  type="button"
-                  className="large-input"
-                  style={{ 
-                    flex: 1, 
-                    backgroundColor: formData.gender === 'Other' ? 'var(--primary-green)' : 'white',
-                    color: formData.gender === 'Other' ? 'white' : 'var(--text-main)',
-                    borderColor: formData.gender === 'Other' ? 'var(--primary-green)' : 'var(--border-color)',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => setGender('Other')}
-                >
-                  {t('other')}
-                </button>
-              </div>
+              ))}
             </div>
 
-            <button type="submit" className="btn-primary large mt-4">
+            <button type="submit" className="tm-btn-primary tm-next-btn">
               {t('next')}
             </button>
           </form>
         ) : (
-          <form onSubmit={handleSubmit} className="form-body">
-            <div className="input-group">
-              <label>{t('street')}</label>
-              <input 
-                type="text" 
-                name="street"
-                value={formData.street}
-                onChange={handleChange}
-                placeholder={t('streetPH')} 
-                className="large-input"
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="tm-form">
+            <input type="text" name="street" value={formData.street} onChange={handleChange} placeholder={t('streetPH')} className="tm-input" />
+            <input type="text" name="villageCity" value={formData.villageCity} onChange={handleChange} placeholder={t('villageCityPH')} className="tm-input" />
+            
+            <select name="state" value={formData.state} onChange={handleChange} className="tm-input">
+              <option value="">{t('selectState')}</option>
+              {getStates(language).map((st, idx) => (
+                <option key={idx} value={getStates('en')[idx]}>{st}</option>
+              ))}
+            </select>
 
-            <div className="input-group">
-              <label>{t('villageCity')}</label>
-              <input 
-                type="text" 
-                name="villageCity"
-                value={formData.villageCity}
-                onChange={handleChange}
-                placeholder={t('villageCityPH')} 
-                className="large-input"
-              />
-            </div>
-
-            <div className="input-group">
-              <label>{t('state')}</label>
-              <select 
-                name="state" 
-                value={formData.state} 
-                onChange={handleChange}
-                className="large-input"
-              >
-                <option value="">{t('selectState')}</option>
-                {getStates(language).map((st, idx) => (
-                  <option key={idx} value={getStates('en')[idx]}>{st}</option>
-                ))}
-              </select>
-            </div>
-
-            <button type="submit" className="btn-primary large mt-4" style={{ backgroundColor: 'var(--primary-green)' }}>
+            <button type="submit" className="tm-btn-primary tm-next-btn">
               {t('createAccountBtn')}
             </button>
+            {networkError && (
+              <div className="tm-error-banner">
+                ⚠️ Could not connect to server. Your data has been saved locally. You can continue.
+              </div>
+            )}
           </form>
         )}
       </div>
-      
-      {step === 1 && (
-        <div className="demo-links mt-4 text-center">
-          <button className="btn-text" onClick={() => navigate('/doctor-dashboard')}>
-            {t('demoDoctorLogin')}
-          </button>
-        </div>
-      )}
     </div>
   );
 };
