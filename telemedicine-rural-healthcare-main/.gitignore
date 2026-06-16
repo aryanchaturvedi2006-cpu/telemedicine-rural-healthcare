@@ -24,4 +24,5 @@ yarn-error.log*
 
 # Backend environment variables
 backend/.env
-backend/.env.local
+backend/.env.localai-service/model.pkl 
+ai-service/symptoms.pkl 
