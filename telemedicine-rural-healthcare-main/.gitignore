@@ -26,3 +26,5 @@ yarn-error.log*
 backend/.env
 backend/.env.localai-service/model.pkl 
 ai-service/symptoms.pkl 
+
+.env

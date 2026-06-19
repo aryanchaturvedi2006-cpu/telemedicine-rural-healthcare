@@ -14,11 +14,13 @@ const PatientRegistration = () => {
 
   const [step, setStep] = useState(1);
   const [networkError, setNetworkError] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     fullName: '',
     age: '',
     gender: '',
     mobileNumber: '',
+    pin: '',
     street: '',
     villageCity: '',
     state: '',
@@ -41,12 +43,17 @@ const PatientRegistration = () => {
 
   const handleNext = (e) => {
     e.preventDefault();
-    if (!formData.fullName || !formData.age || !formData.gender || !formData.mobileNumber) {
-      alert(t('fillAllFields'));
+    setError('');
+    if (!formData.fullName || !formData.age || !formData.gender || !formData.mobileNumber || !formData.pin) {
+      setError(t('fillAllFields') || 'Please fill all fields');
       return;
     }
     if (formData.mobileNumber.length !== 10) {
-      alert(t('invalidMobile'));
+      setError(t('invalidMobile') || 'Invalid mobile number');
+      return;
+    }
+    if (formData.pin.length !== 4) {
+      setError('PIN must be exactly 4 digits');
       return;
     }
     setStep(2);
@@ -54,8 +61,9 @@ const PatientRegistration = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     if (!formData.street || !formData.villageCity || !formData.state) {
-      alert(t('fillAllFields'));
+      setError(t('fillAllFields') || 'Please fill all fields');
       return;
     }
     
@@ -77,31 +85,44 @@ const PatientRegistration = () => {
       const data = await response.json();
 
       if (response.ok) {
-        const patientObj = { ...data.patient, role: 'patient' };
+        const patientObj = { ...data.patient, role: 'patient', pin: formData.pin };
+        
+        let allPatients = [];
+        try { allPatients = JSON.parse(localStorage.getItem('patients') || '[]'); } catch(e) {}
+        allPatients.push(patientObj);
+        localStorage.setItem('patients', JSON.stringify(allPatients));
+        
         login(patientObj);
         localStorage.setItem('currentPatient', JSON.stringify(patientObj));
         navigate('/patient-dashboard');
       } else {
         if (data.message === 'Mobile number already registered') {
-          alert(t('mobileExistsError'));
+          setError(t('mobileExistsError') || 'Mobile number already registered');
         } else {
-          alert(data.message || 'Registration failed');
+          setError(data.message || 'Registration failed');
         }
       }
-    } catch (error) {
-      console.error('Registration error:', error);
+    } catch (err) {
+      console.error('Registration error:', err);
       setNetworkError(true);
       const patientObj = {
         name: formData.fullName,
         age: formData.age,
         gender: formData.gender,
         mobile: formData.mobileNumber,
+        pin: formData.pin,
         street: formData.street,
         village: formData.villageCity,
         state: formData.state,
         role: 'patient',
         id: 'local-temp-id'
       };
+      
+      let allPatients = [];
+      try { allPatients = JSON.parse(localStorage.getItem('patients') || '[]'); } catch(e) {}
+      allPatients.push(patientObj);
+      localStorage.setItem('patients', JSON.stringify(allPatients));
+      
       localStorage.setItem('patientData', JSON.stringify(patientObj));
       // Optionally also set currentPatient for other hooks
       localStorage.setItem('currentPatient', JSON.stringify(patientObj));
@@ -138,6 +159,22 @@ const PatientRegistration = () => {
             <input type="number" name="age" min="1" max="120" value={formData.age} onChange={handleChange} placeholder={t('agePH')} className="tm-input" style={{ marginTop: '14px' }} />
             <input type="number" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} placeholder={t('mobileNumberPH')} className="tm-input" />
             
+            <div style={{ marginTop: '14px', marginBottom: '14px' }}>
+              <label style={{ display: 'block', fontSize: '14px', color: '#333', fontWeight: '500', marginBottom: '2px' }}>Set 4-Digit PIN</label>
+              <div style={{ fontSize: '12px', color: '#888', marginBottom: '6px' }}>You'll use this PIN to login next time</div>
+              <input 
+                type="password" 
+                inputMode="numeric" 
+                maxLength={4} 
+                name="pin" 
+                value={formData.pin} 
+                onChange={handleChange} 
+                placeholder="Enter 4-digit PIN" 
+                className="tm-input" 
+                style={{ margin: 0 }}
+              />
+            </div>
+
             <div className="tm-gender-selector">
               {['Male', 'Female', 'Other'].map(g => (
                 <button
@@ -154,6 +191,14 @@ const PatientRegistration = () => {
             <button type="submit" className="tm-btn-primary tm-next-btn">
               {t('next')}
             </button>
+            {error && (
+              <div style={{
+                background: '#FFEBEE', borderLeft: '4px solid #C62828', color: '#C62828',
+                padding: '12px 16px', borderRadius: '8px', fontSize: '14px', marginTop: '12px'
+              }}>
+                {error}
+              </div>
+            )}
           </form>
         ) : (
           <form onSubmit={handleSubmit} className="tm-form">
@@ -176,6 +221,14 @@ const PatientRegistration = () => {
             <button type="submit" className="tm-btn-primary tm-next-btn">
               {t('createAccountBtn')}
             </button>
+            {error && (
+              <div style={{
+                background: '#FFEBEE', borderLeft: '4px solid #C62828', color: '#C62828',
+                padding: '12px 16px', borderRadius: '8px', fontSize: '14px', marginTop: '12px'
+              }}>
+                {error}
+              </div>
+            )}
             {networkError && (
               <div className="tm-error-banner">
                 ⚠️ Could not connect to server. Your data has been saved locally. You can continue.

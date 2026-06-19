@@ -134,33 +134,76 @@ MEDICAL RULES:
         parts: [{ text: msg.text }]
       }));
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: apiContents,
-            systemInstruction: {
-              role: 'system',
-              parts: [{ text: SYSTEM_PROMPT }]
-            },
-            generationConfig: {
-              temperature: 0.4,
-              maxOutputTokens: 500
+      let response;
+      let data;
+      let success = false;
+      let lastError = null;
+      
+      const modelsToTry = [
+        'gemini-flash-latest',
+        'gemini-2.5-flash',
+        'gemini-2.0-flash-lite-001',
+        'gemini-2.0-flash'
+      ];
+
+      for (const model of modelsToTry) {
+        if (success) break;
+        let retryCount = 0;
+        const MAX_RETRIES = 1; // Try each model max 2 times (initial + 1 retry)
+
+        while (retryCount <= MAX_RETRIES) {
+          try {
+            response = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: apiContents,
+                  systemInstruction: {
+                    role: 'system',
+                    parts: [{ text: SYSTEM_PROMPT }]
+                  },
+                  generationConfig: {
+                    temperature: 0.4,
+                    maxOutputTokens: 500
+                  }
+                })
+              }
+            );
+            
+            if (!response.ok) {
+              data = await response.json().catch(() => ({}));
+              console.error(`API Error Response for ${model}:`, data);
+              throw new Error(data.error?.message || `HTTP ${response.status}`);
             }
-          })
+
+            data = await response.json();
+            success = true;
+            break; // Success, exit retry loop
+          } catch (error) {
+            lastError = error;
+            const errMsg = error.message.toLowerCase();
+            const isRetryable = errMsg.includes('failed to fetch') || 
+                                errMsg.includes('503') || 
+                                errMsg.includes('high demand') ||
+                                errMsg.includes('500');
+                                
+            if (retryCount >= MAX_RETRIES || !isRetryable) {
+              break; // Break the inner retry loop, try next model
+            }
+            console.warn(`Fetch failed for ${model}, retrying...`, error);
+            await new Promise(res => setTimeout(res, 1500)); 
+            retryCount++;
+          }
         }
-      );
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        console.error("API Error Response:", data);
-        throw new Error(data.error?.message || `HTTP ${response.status}`);
       }
 
-      if (!data.candidates || data.candidates.length === 0) {
+      if (!success) {
+        throw lastError || new Error("Failed to connect to any AI model.");
+      }
+
+      if (!data?.candidates || data.candidates.length === 0) {
         throw new Error('No response generated');
       }
 
@@ -184,6 +227,181 @@ MEDICAL RULES:
       handleSendMessage();
     }
   };
+
+  const getSuggestionChips = () => {
+    const chipTranslations = {
+      en: [
+        "🤒 I have fever and headache",
+        "💊 What medicine for cold?",
+        "🚨 Chest pain — is it serious?",
+        "🤢 I have stomach pain and vomiting",
+        "🦟 Dengue symptoms — what to check?",
+        "🤰 Pregnancy health tips",
+        "🤝 How to recognize diabetes symptoms?",
+        "😮💨 Difficulty breathing or cough",
+        "🦴 Joint pain and body ache",
+        "🥱 Weakness and tiredness",
+        "💪 Weakness and body pain",
+        "😴 Sleep problems or insomnia"
+      ],
+      hi: [
+        "🤒 मुझे बुखार और सिरदर्द है",
+        "💊 सर्दी की दवा क्या है?",
+        "🚨 सीने में दर्द — क्या यह गंभीर है?",
+        "🤢 मुझे पेट में दर्द और उल्टी हो रही है",
+        "🦟 डेंगू के लक्षण — क्या जांचें?",
+        "🤰 गर्भावस्था स्वास्थ्य संबंधी सुझाव",
+        "🤝 मधुमेह के लक्षणों को कैसे पहचानें?",
+        "😮💨 सांस लेने में कठिनाई या खांसी",
+        "🦴 जोड़ों में दर्द और बदन दर्द",
+        "🥱 कमजोरी और थकान",
+        "💪 कमजोरी और शरीर में दर्द",
+        "😴 नींद की समस्या या अनिद्रा"
+      ],
+      mrw: [
+        "🤒 मने ताव और सिरदर्द है",
+        "💊 जुखाम री दवाई कांई है?",
+        "🚨 छाती में दुखणो — कांई ओ गंभीर है?",
+        "🤢 मने पेट दर्द और उल्टी हो रही है",
+        "🦟 डेंगू रा लक्षण — कांई जांचा?",
+        "🤰 गर्भावस्था रा सेहत सुझाव",
+        "🤝 शुगर रा लक्षण कियां पिछाणा?",
+        "😮💨 सांस लेवण में दिक्कत या खांसी",
+        "🦴 हाडकां में दर्द और बदन दर्द",
+        "🥱 कमजोरी और थकान",
+        "💪 कमजोरी और डील में दर्द",
+        "😴 नींद री दिक्कत या उनींदापन"
+      ],
+      gu: [
+        "🤒 મને તાવ અને માથાનો દુખાવો છે",
+        "💊 શરદી માટે કઈ દવા?",
+        "🚨 છાતીમાં દુખાવો — શું તે ગંભીર છે?",
+        "🤢 મને પેટમાં દુખાવો અને ઉલ્ટી થાય છે",
+        "🦟 ડેન્ગ્યુના લક્ષણો — શું તપાસવું?",
+        "🤰 ગર્ભાવસ્થા માટે આરોગ્ય ટિપ્સ",
+        "🤝 ડાયાબિટીસના લક્ષણો કેવી રીતે ઓળખવા?",
+        "😮💨 શ્વાસ લેવામાં તકલીફ અથવા ઉધરસ",
+        "🦴 સાંધાનો દુખાવો અને શરીરનો દુખાવો",
+        "🥱 નબળાઇ અને થાક",
+        "💪 નબળાઇ અને શરીરનો દુખાવો",
+        "😴 ઊંઘની સમસ્યા અથવા અનિદ્રા"
+      ],
+      mr: [
+        "🤒 मला ताप आणि डोकेदुखी आहे",
+        "💊 सर्दीसाठी कोणती औषधे?",
+        "🚨 छातीत दुखत आहे — हे गंभीर आहे का?",
+        "🤢 मला पोटदुखी आणि उलट्या होत आहेत",
+        "🦟 डेंग्यूची लक्षणे — काय तपासावे?",
+        "🤰 गर्भधारणा आरोग्याच्या टिप्स",
+        "🤝 मधुमेहाची लक्षणे कशी ओळखावी?",
+        "😮💨 श्वास घेण्यास त्रास किंवा खोकला",
+        "🦴 सांधेदुखी आणि अंगदुखी",
+        "🥱 अशक्तपणा आणि थकवा",
+        "💪 अशक्तपणा आणि अंगदुखी",
+        "😴 झोपेची समस्या किंवा निद्रानाश"
+      ],
+      ta: [
+        "🤒 எனக்கு காய்ச்சல் மற்றும் தலைவலி உள்ளது",
+        "💊 சளிக்கு என்ன மருந்து?",
+        "🚨 நெஞ்சு வலி — இது தீவிரமானதா?",
+        "🤢 எனக்கு வயிற்று வலி மற்றும் வாந்தி உள்ளது",
+        "🦟 டெங்கு அறிகுறிகள் — எதை சரிபார்க்க வேண்டும்?",
+        "🤰 கர்ப்பகால சுகாதார குறிப்புகள்",
+        "🤝 நீரிழிவு அறிகுறிகளை எவ்வாறு அடையாளம் காண்பது?",
+        "😮💨 மூச்சு விடுவதில் சிரமம் அல்லது இருமல்",
+        "🦴 மூட்டு வலி மற்றும் உடல் வலி",
+        "🥱 பலவீனம் மற்றும் சோர்வு",
+        "💪 பலவீனம் மற்றும் உடல் வலி",
+        "😴 தூக்க பிரச்சினைகள் அல்லது தூக்கமின்மை"
+      ],
+      te: [
+        "🤒 నాకు జ్వరం మరియు తలనొప్పిగా ఉంది",
+        "💊 జలుబుకి ఏ మందు వాడాలి?",
+        "🚨 ఛాతీ నొప్పి — ఇది తీవ్రమైనదా?",
+        "🤢 నాకు కడుపు నొప్పి మరియు వాంతులు అవుతున్నాయి",
+        "🦟 డెంగ్యూ లక్షణాలు — ఏమి గమనించాలి?",
+        "🤰 గర్భధారణ ఆరోగ్య చిట్కాలు",
+        "🤝 మధుమేహం లక్షణాలను ఎలా గుర్తించాలి?",
+        "😮💨 శ్వాస తీసుకోవడంలో ఇబ్బంది లేదా దగ్గు",
+        "🦴 కీళ్ల నొప్పులు మరియు ఒళ్లు నొప్పులు",
+        "🥱 బలహీనత మరియు అలసట",
+        "💪 బలహీనత మరియు ఒళ్లు నొప్పులు",
+        "😴 నిద్ర సమస్యలు లేదా నిద్రలేమి"
+      ],
+      pa: [
+        "🤒 ਮੈਨੂੰ ਬੁਖਾਰ ਅਤੇ ਸਿਰਦਰਦ ਹੈ",
+        "💊 ਜ਼ੁਕਾਮ ਲਈ ਕਿਹੜੀ ਦਵਾਈ?",
+        "🚨 ਛਾਤੀ ਵਿੱਚ ਦਰਦ — ਕੀ ਇਹ ਗੰਭੀਰ ਹੈ?",
+        "🤢 ਮੈਨੂੰ ਪੇਟ ਦਰਦ ਅਤੇ ਉਲਟੀਆਂ ਆ ਰਹੀਆਂ ਹਨ",
+        "🦟 ਡੇਂਗੂ ਦੇ ਲੱਛਣ — ਕੀ ਜਾਂਚ ਕਰਨੀ ਹੈ?",
+        "🤰 ਗਰਭ ਅਵਸਥਾ ਲਈ ਸਿਹਤ ਸੁਝਾਅ",
+        "🤝 ਸ਼ੂਗਰ ਦੇ ਲੱਛਣਾਂ ਨੂੰ ਕਿਵੇਂ ਪਛਾਣਿਆ ਜਾਵੇ?",
+        "😮💨 ਸਾਹ ਲੈਣ ਵਿੱਚ ਮੁਸ਼ਕਲ ਜਾਂ ਖੰਘ",
+        "🦴 ਜੋੜਾਂ ਦਾ ਦਰਦ ਅਤੇ ਸਰੀਰ ਦਾ ਦਰਦ",
+        "🥱 ਕਮਜ਼ੋਰੀ ਅਤੇ ਥਕਾਵٹ",
+        "💪 ਕਮਜ਼ੋਰੀ ਅਤੇ ਸਰੀਰ ਦਾ ਦਰਦ",
+        "😴 ਨੀਂਦ ਦੀਆਂ ਸਮੱਸਿਆਵਾਂ ਜਾਂ ਇਨਸੌਮਨੀਆ"
+      ],
+      bn: [
+        "🤒 আমার জ্বর এবং মাথাব্যথা আছে",
+        "💊 সর্দির জন্য কী ওষুধ?",
+        "🚨 বুকে ব্যথা — এটি কি গুরুতর?",
+        "🤢 আমার পেট ব্যথা এবং বমি হচ্ছে",
+        "🦟 ডেঙ্গুর লক্ষণ — কী পরীক্ষা করবেন?",
+        "🤰 গর্ভাবস্থায় স্বাস্থ্যের টিপস",
+        "🤝 ডায়াবেটিসের লক্ষণ কীভাবে চিনবেন?",
+        "😮💨 শ্বাস নিতে কষ্ট বা কাশি",
+        "🦴 জয়েন্টে ব্যথা এবং শরীরে ব্যথা",
+        "🥱 দুর্বলতা এবং ক্লান্তি",
+        "💪 দুর্বলতা এবং শরীরে ব্যথা",
+        "😴 ঘুমের সমস্যা বা অনিদ্রা"
+      ],
+      kn: [
+        "🤒 ನನಗೆ ಜ್ವರ ಮತ್ತು ತಲೆನೋವು ಇದೆ",
+        "💊 ಶೀತಕ್ಕೆ ಯಾವ ಔಷಧಿ?",
+        "🚨 ಎದೆ ನೋವು — ಇದು ಗಂಭೀರವೇ?",
+        "🤢 ನನಗೆ ಹೊಟ್ಟೆ ನೋವು ಮತ್ತು ವಾಂತಿ ಇದೆ",
+        "🦟 ಡೆಂಗ್ಯೂ ಲಕ್ಷಣಗಳು — ಏನನ್ನು ಪರೀಕ್ಷಿಸಬೇಕು?",
+        "🤰 ಗರ್ಭಾವಸ್ಥೆಯ ಆರೋಗ್ಯ ಸಲಹೆಗಳು",
+        "🤝 ಮಧುಮೇಹ ಲಕ್ಷಣಗಳನ್ನು ಗುರುತಿಸುವುದು ಹೇಗೆ?",
+        "😮💨 ಉಸಿರಾಟದ ತೊಂದರೆ ಅಥವಾ ಕೆಮ್ಮು",
+        "🦴 ಕೀಲು ನೋವು ಮತ್ತು ಮೈಕೈ ನೋವು",
+        "🥱 ದೌರ್ಬಲ್ಯ ಮತ್ತು ಆಯಾಸ",
+        "💪 ದೌರ್ಬಲ್ಯ ಮತ್ತು ಮೈಕೈ ನೋವು",
+        "😴 ನಿದ್ರೆಯ ಸಮಸ್ಯೆಗಳು ಅಥವಾ ನಿದ್ರಾಹೀನತೆ"
+      ],
+      ml: [
+        "🤒 എനിക്ക് പനിയും തലവേദനയും ഉണ്ട്",
+        "💊 ജലദോഷത്തിന് എന്ത് മരുന്ന്?",
+        "🚨 നെഞ്ചുവേദന — ഇത് ഗുരുതരമാണോ?",
+        "🤢 എനിക്ക് വയറുവേദനയും ഛർദ്ദിയും ഉണ്ട്",
+        "🦟 ഡെങ്കിപ്പനി ലക്ഷണങ്ങൾ — എന്തൊക്കെ ശ്രദ്ധിക്കണം?",
+        "🤰 ഗർഭകാല ആരോഗ്യ ടിപ്പുകൾ",
+        "🤝 പ്രമേഹ ലക്ഷണങ്ങൾ എങ്ങനെ തിരിച്ചറിയാം?",
+        "😮💨 ശ്വസിക്കാൻ ബുദ്ധിമുട്ട് അല്ലെങ്കിൽ ചുമ",
+        "🦴 സന്ധി വേദനയും ശരീര വേദനയും",
+        "🥱 ക്ഷീണവും തളർച്ചയും",
+        "💪 ക്ഷീണവും ശരീര വേദനയും",
+        "😴 ഉറക്ക പ്രശ്നങ്ങൾ അല്ലെങ്കിൽ ഉറക്കമില്ലായ്മ"
+      ],
+      as: [
+        "🤒 মোৰ জ্বৰ আৰু মূৰৰ বিষ আছে",
+        "💊 চৰ্দিৰ বাবে কি ঔষধ?",
+        "🚨 বুকুৰ বিষ — ই গুৰুতৰ নেকি?",
+        "🤢 মোৰ পেটৰ বিষ আৰু বমি হৈছে",
+        "🦟 ডেংগুৰ লক্ষণ — কি পৰীক্ষা কৰিব লাগে?",
+        "🤰 গৰ্ভাৱস্থাৰ স্বাস্থ্যৰ পৰামৰ্শ",
+        "🤝 ডায়েবেটিছৰ লক্ষণ কেনেকৈ চিনাক্ত কৰিব?",
+        "😮💨 উশাহ লোৱাত কষ্ট বা কাহ",
+        "🦴 গাঁঠিৰ বিষ আৰু গাৰ বিষ",
+        "🥱 দুৰ্বলতা আৰু ভাগৰ",
+        "💪 দুৰ্বলতা আৰু গাৰ বিষ",
+        "😴 টোপনিৰ সমস্যা বা অনিদ্ৰা"
+      ]
+    };
+    return chipTranslations[language] || chipTranslations.en;
+  };
+  const suggestionChips = getSuggestionChips();
 
   return (
     <div style={{
@@ -222,20 +440,48 @@ MEDICAL RULES:
         }}
       >
         {messages.length === 0 ? (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'flex-start' }}>
-            {["🤒 I have fever and headache", "💊 What medicine for cold?", "🚨 Chest pain — is it serious?"].map((chip) => (
-              <button 
-                key={chip}
-                onClick={() => handleSendMessage(chip)}
-                style={{
-                  backgroundColor: '#fff', border: '1px solid #2E7D32', color: '#2E7D32',
-                  borderRadius: '20px', padding: '10px 20px', fontSize: '14px', cursor: 'pointer', margin: '4px'
-                }}
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
+          <>
+            <style>{`
+              .suggestion-grid {
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 10px;
+                padding: 16px 0;
+              }
+              @media (max-width: 768px) {
+                .suggestion-grid {
+                  grid-template-columns: repeat(3, 1fr);
+                }
+              }
+              @media (max-width: 480px) {
+                .suggestion-grid {
+                  grid-template-columns: repeat(2, 1fr);
+                }
+              }
+            `}</style>
+            <div className="suggestion-grid">
+              {suggestionChips.map((chip) => (
+                <button 
+                  key={chip}
+                  onClick={() => handleSendMessage(chip)}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F1F8F1';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = '#fff';
+                  }}
+                  style={{
+                    backgroundColor: '#fff', border: '1px solid #2E7D32', color: '#2E7D32',
+                    borderRadius: '20px', padding: '10px 20px', fontSize: '14px', cursor: 'pointer',
+                    transition: 'background-color 0.2s', width: '100%', textAlign: 'center',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          </>
         ) : (
           messages.map((msg) => (
             <div key={msg.id} style={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', marginBottom: '12px', maxWidth: msg.role === 'user' ? '75%' : '80%' }}>

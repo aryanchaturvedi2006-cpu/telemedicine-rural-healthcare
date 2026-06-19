@@ -10,7 +10,10 @@ import PatientRegistration from './pages/PatientRegistration';
 import DoctorRegistration from './pages/DoctorRegistration';
 import PatientDashboard from './pages/PatientDashboard';
 import DoctorDashboard from './pages/DoctorDashboard';
+import PatientWelcome from './pages/PatientWelcome';
 import PatientLogin from './pages/PatientLogin';
+import EmergencySOS from './pages/EmergencySOS';
+import GovtSchemes from './pages/GovtSchemes';
 import LoginPage from './pages/LoginPage';
 
 function App() {
@@ -21,6 +24,9 @@ function App() {
           <Routes>
             <Route path="/" element={<LanguageSelector />} />
             <Route path="/landing" element={<Landing />} />
+            <Route path="/emergency-sos" element={<EmergencySOS />} />
+            <Route path="/govt-schemes" element={<GovtSchemes />} />
+            <Route path="/patient-welcome" element={<PatientWelcome />} />
             <Route path="/patient-registration" element={<PatientRegistration />} />
             <Route path="/doctor-registration" element={<DoctorRegistration />} />
             <Route path="/patient-dashboard" element={<PatientDashboard />} />
