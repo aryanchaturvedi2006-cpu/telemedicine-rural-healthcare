@@ -128,7 +128,7 @@ const DoctorRegistration = () => {
           </div>
 
           <div className="input-group">
-            <label>Email</label>
+            <label>{t('email') || 'Email'}</label>
             <input type="email" name="email" value={formData.email}
               onChange={handleChange} placeholder="doctor@example.com" className="large-input" />
           </div>
@@ -163,7 +163,7 @@ const DoctorRegistration = () => {
             <label>{t('area') || 'Area / District'}</label>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <input type="text" name="area" value={formData.area}
-                onChange={handleChange} placeholder="e.g. Vaishali Nagar" className="large-input" style={{ marginBottom: 0, flex: 1 }} />
+                onChange={handleChange} placeholder={t('area') || "e.g. Vaishali Nagar"} className="large-input" style={{ marginBottom: 0, flex: 1 }} />
               <VoiceInputButton language={language} onResult={(text) => handleVoiceInput('area', text)} />
             </div>
           </div>
@@ -200,6 +200,14 @@ const DoctorRegistration = () => {
             {t('createAccountBtn')}
           </button>
 
+          <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: '#555' }}>
+            <span 
+              onClick={() => navigate('/doctor-login')} 
+              style={{ color: '#1565C0', textDecoration: 'none', cursor: 'pointer' }}
+            >
+              {t('alreadyHaveAccountDoctor') || 'Already have an account? Login here →'}
+            </span>
+          </p>
         </form>
       </div>
     </div>

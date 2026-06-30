@@ -128,10 +128,10 @@ def analyze():
     print(f"MATCHED symptoms ({len(matched)}/{len(symptoms_clean)}): {matched}")
     print(f"UNMATCHED symptoms (not in model's 133 list): {unmatched}")
 
-    if len(symptoms_clean) < 3:
+    if len(symptoms_clean) < 4:
         return jsonify({
             "low_confidence": True,
-            "message": get_translation(lang, 'lowConfidenceMsg') or "Kripya kam se kam 3 lakshan chunen.",
+            "message": get_translation(lang, 'lowConfidenceMsg') or "Kripya kam se kam 4 lakshan chunen.",
             "possible_conditions": [],
             "recommended_specialization": "General Medicine",
             "see_doctor": True,
@@ -140,10 +140,64 @@ def analyze():
 
     vector = [1 if sym in symptoms_clean else 0 for sym in all_symptoms]
     probs = clf.predict_proba([vector])[0]
-    top_indices = np.argsort(probs)[::-1][:3]
-    top_diseases = [(clf.classes_[i], float(probs[i])) for i in top_indices]
-    pred_disease, confidence = top_diseases[0]
-    alternative_diseases = [d for d, c in top_diseases[1:]]
+    
+    # Get top 5 just in case rules disqualify some
+    top_indices = np.argsort(probs)[::-1][:5]
+    
+    # -------------------------------------------------------------------
+    # MEDICAL RULE ENGINE (Phase 1)
+    # Filter predictions based on strict rules
+    # -------------------------------------------------------------------
+    valid_diseases = []
+    for idx in top_indices:
+        disease = str(clf.classes_[idx])
+        prob = float(probs[idx])
+        is_valid = True
+        
+        # Rule 1: Heart attack requires chest_pain and (sweating or breathlessness)
+        if disease == 'Heart attack':
+            if 'chest_pain' not in symptoms_clean or ('sweating' not in symptoms_clean and 'breathlessness' not in symptoms_clean):
+                is_valid = False
+                
+        # Rule 2: Paralysis requires weakness_of_one_body_side or altered_sensorium
+        elif disease == 'Paralysis (brain hemorrhage)':
+            if 'weakness_of_one_body_side' not in symptoms_clean and 'altered_sensorium' not in symptoms_clean:
+                is_valid = False
+                
+        # Rule 3: AIDS requires muscle_wasting or extra_marital_contacts or patches_in_throat
+        elif disease == 'AIDS':
+            if 'muscle_wasting' not in symptoms_clean and 'extra_marital_contacts' not in symptoms_clean and 'patches_in_throat' not in symptoms_clean:
+                is_valid = False
+
+        if is_valid:
+            valid_diseases.append((disease, prob))
+
+    # If all top diseases were filtered out, fallback to original top
+    if not valid_diseases:
+        valid_diseases = [(str(clf.classes_[idx]), float(probs[idx])) for idx in top_indices[:3]]
+
+    # Take the top 3 valid diseases
+    top_3 = valid_diseases[:3]
+    
+    # -------------------------------------------------------------------
+    # PROBABILITY NORMALIZATION (Solves the "Low Confidence" Issue)
+    # Random Forest spreads probabilities. We normalize the top 3 to sum to 1.
+    # -------------------------------------------------------------------
+    sum_probs = sum([p for d, p in top_3])
+    if sum_probs > 0:
+        normalized_top_3 = [(d, p / sum_probs) for d, p in top_3]
+    else:
+        normalized_top_3 = top_3
+        
+    pred_disease, confidence = normalized_top_3[0]
+    
+    # Format alternative diseases with percentages for the frontend
+    alternative_diseases = []
+    for d, c in normalized_top_3[1:]:
+        alternative_diseases.append({
+            "name": d,
+            "confidence": round(c, 2)
+        })
 
     severity = get_severity(pred_disease)
     specialization = get_specialization(pred_disease)
@@ -151,14 +205,15 @@ def analyze():
     see_doctor = get_see_doctor(severity)
 
     disease_key = pred_disease.strip()
-    description = description_dict.get(disease_key, "Please consult a doctor for proper diagnosis.")
+    description_en = description_dict.get(disease_key, "Please consult a doctor for proper diagnosis.")
+    description = get_translation(lang, description_en)
     precautions = precautions_dict.get(disease_key, ["Rest", "Stay hydrated", "Consult a doctor"])
 
     result = {
         "predicted_disease": pred_disease,
         "predicted_disease_translated": get_translation(lang, pred_disease),
         "confidence": round(confidence, 2),
-        "low_confidence_warning": confidence < 0.3,
+        "low_confidence_warning": confidence < 0.65,
         "severity": severity,
         "severity_translated": get_translation(lang, severity),
         "recommended_specialization": specialization,
@@ -172,7 +227,7 @@ def analyze():
         "see_doctor_translated": get_translation(lang, see_doctor),
         "emergency": emergency,
         "alternative_diseases": alternative_diseases,
-        "alternative_diseases_translated": [get_translation(lang, d) for d in alternative_diseases]
+        "alternative_diseases_translated": [{"name": get_translation(lang, d['name']), "confidence": d['confidence']} for d in alternative_diseases]
     }
     return jsonify(result)
 

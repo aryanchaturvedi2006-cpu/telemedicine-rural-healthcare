@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const PatientLogin = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({ name: '', mobile: '', pin: '' });
   const [error, setError] = useState('');
 
@@ -56,11 +58,11 @@ const PatientLogin = () => {
         localStorage.setItem('currentPatient', JSON.stringify(match));
         navigate('/patient-dashboard');
       } else {
-        setError("⚠️ Details don't match our records. Please check your name, mobile number and PIN, or create a new account.");
+        setError(t('userNotFoundError') || "⚠️ Details don't match our records. Please check your name, mobile number and PIN, or create a new account.");
       }
     } catch (e) {
       console.error(e);
-      setError("⚠️ Details don't match our records. Please check your name, mobile number and PIN, or create a new account.");
+      setError(t('userNotFoundError') || "⚠️ Details don't match our records. Please check your name, mobile number and PIN, or create a new account.");
     }
   };
 
@@ -326,22 +328,22 @@ const PatientLogin = () => {
           <div>
             <div style={{ textAlign: 'center', fontSize: '36px', marginBottom: '8px' }}>🔐</div>
             <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#2E7D32', textAlign: 'center', margin: '0 0 8px 0' }}>
-              Patient Login
+              {t('patientLogin') || 'Patient Login'}
             </h1>
             <p style={{ fontSize: '13px', color: '#555', textAlign: 'center', margin: '0 0 24px 0' }}>
-              Enter your details to continue
+              {t('enterDetailsToContinue') || 'Enter your details to continue'}
             </p>
 
             <hr style={{ border: 'none', borderTop: '1px solid #E0E0E0', marginBottom: '24px' }} />
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '14px', marginBottom: '6px', color: '#333', fontWeight: '500' }}>Full Name</label>
+              <label style={{ display: 'block', fontSize: '14px', marginBottom: '6px', color: '#333', fontWeight: '500' }}>{t('fullName') || 'Full Name'}</label>
               <input 
                 type="text" 
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Enter your name" 
+                placeholder={t('enterName') || "Enter your name"} 
                 style={{
                   width: '100%',
                   height: '48px',
@@ -358,14 +360,14 @@ const PatientLogin = () => {
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '14px', marginBottom: '6px', color: '#333', fontWeight: '500' }}>Mobile Number</label>
+              <label style={{ display: 'block', fontSize: '14px', marginBottom: '6px', color: '#333', fontWeight: '500' }}>{t('mobileNumber') || 'Mobile Number'}</label>
               <input 
                 type="tel" 
                 name="mobile"
                 maxLength={10}
                 value={formData.mobile}
                 onChange={handleChange}
-                placeholder="10-digit mobile number" 
+                placeholder={t('tenDigitMobile') || "10-digit mobile number"} 
                 style={{
                   width: '100%',
                   height: '48px',
@@ -382,7 +384,7 @@ const PatientLogin = () => {
             </div>
 
             <div style={{ marginBottom: '4px', position: 'relative' }}>
-              <label style={{ display: 'block', fontSize: '14px', marginBottom: '6px', color: '#333', fontWeight: '500' }}>4-Digit PIN</label>
+              <label style={{ display: 'block', fontSize: '14px', marginBottom: '6px', color: '#333', fontWeight: '500' }}>{t('fourDigitPin') || '4-Digit PIN'}</label>
               <div style={{ position: 'relative' }}>
                 <input 
                   type={showPin ? 'text' : 'password'} 
@@ -391,7 +393,7 @@ const PatientLogin = () => {
                   maxLength={4}
                   value={formData.pin}
                   onChange={handleChange}
-                  placeholder="Enter your PIN" 
+                  placeholder={t('enterPin') || "Enter your PIN"} 
                   style={{
                     width: '100%',
                     height: '48px',
@@ -411,34 +413,30 @@ const PatientLogin = () => {
               </div>
             </div>
 
-            <div 
-              onClick={() => { setShowForgotPin(true); setError(''); }}
-              style={{
-                fontSize: '12px',
-                color: '#1565C0',
-                textAlign: 'right',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-                marginTop: '4px'
-              }}
-            >
-              Forgot PIN?
+            <div style={{ textAlign: 'right', marginTop: '6px' }}>
+              <span 
+                onClick={() => {
+                  setShowForgotPin(true);
+                  setResetStep(1);
+                  setError('');
+                }}
+                style={{ fontSize: '13px', color: '#2E7D32', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                {t('forgotPin') || 'Forgot PIN?'}
+              </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '12px 0 16px 0' }}>
-              <input 
-                type="checkbox" 
-                id="staySignedIn"
-                checked={staySignedIn}
-                onChange={(e) => setStaySignedIn(e.target.checked)}
-                style={{ width: '18px', height: '18px', accentColor: '#2E7D32', cursor: 'pointer' }}
-              />
-              <label 
-                htmlFor="staySignedIn"
-                style={{ fontSize: '13px', color: '#555', cursor: 'pointer' }}
-              >
-                Stay signed in on this device
-              </label>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px', cursor: 'pointer' }} onClick={() => setStaySignedIn(!staySignedIn)}>
+              <div style={{ 
+                width: '18px', height: '18px', borderRadius: '4px', 
+                border: staySignedIn ? 'none' : '2px solid #aaa',
+                backgroundColor: staySignedIn ? '#2E7D32' : 'transparent',
+                display: 'flex', justifyContent: 'center', alignItems: 'center',
+                marginRight: '8px'
+              }}>
+                {staySignedIn && <span style={{ color: 'white', fontSize: '12px' }}>✓</span>}
+              </div>
+              <span style={{ fontSize: '13px', color: '#555' }}>{t('staySignedIn') || 'Stay signed in on this device'}</span>
             </div>
 
             <button
@@ -455,23 +453,18 @@ const PatientLogin = () => {
                 cursor: 'pointer'
               }}
             >
-              Login &rarr;
+              {t('loginBtn') || 'Login →'}
             </button>
 
             {error && <ErrorMessage msg={error} />}
 
-            <div 
-              onClick={() => navigate('/patient-registration')}
-              style={{
-                color: '#2E7D32',
-                fontSize: '14px',
-                textAlign: 'center',
-                marginTop: '16px',
-                cursor: 'pointer',
-                fontWeight: '500'
-              }}
-            >
-              New user? Create Account &rarr;
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <span 
+                onClick={() => navigate('/patient-registration')}
+                style={{ fontSize: '15px', color: '#2E7D32', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                {t('newUserRegisterBtn') || 'New user? Create Account →'}
+              </span>
             </div>
           </div>
         )}

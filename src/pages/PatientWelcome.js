@@ -4,7 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 
 const PatientWelcome = () => {
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   const getGreeting = () => {
     switch (language) {
@@ -75,7 +75,7 @@ const PatientWelcome = () => {
               cursor: 'pointer'
             }}
           >
-            Login
+            {t('welcomeLoginBtn') || 'Login'}
           </button>
           <button
             onClick={() => navigate('/patient-registration')}
@@ -91,7 +91,7 @@ const PatientWelcome = () => {
               cursor: 'pointer'
             }}
           >
-            New user? Register now
+            {t('newUserRegisterWelcome') || 'New user? Register now'}
           </button>
         </div>
       </div>

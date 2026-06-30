@@ -89,8 +89,8 @@ const SymptomChecker = ({ onClose, onBookConsultation }) => {
   };
 
   const handleAnalyze = async () => {
-    if (selectedSymptoms.length < 5) {
-      setErrorMsg("Please select at least 5 symptoms.");
+    if (selectedSymptoms.length < 4) {
+      setErrorMsg(t('sympMinSymptoms') || "Please select at least 4 symptoms.");
       return;
     }
     setIsAnalyzing(true);
@@ -171,9 +171,9 @@ const SymptomChecker = ({ onClose, onBookConsultation }) => {
   ];
 
   const getConfidenceLabel = (confidence) => {
-    if (confidence >= 0.08) return { label: t('confidenceHigh') || 'अधिक संभावना', color: '#16a34a', fillPercent: 90 };
-    if (confidence >= 0.04) return { label: t('confidenceMedium') || 'मध्यम संभावना', color: '#ca8a04', fillPercent: 55 };
-    return { label: t('confidenceLow') || 'अनुमानित संभावना', color: '#dc2626', fillPercent: 25 };
+    if (confidence >= 0.85) return { label: t('confidenceHigh') || 'High Confidence', color: '#16a34a', fillPercent: Math.round(confidence * 100) };
+    if (confidence >= 0.65) return { label: t('confidenceMedium') || 'Medium Confidence', color: '#ca8a04', fillPercent: Math.round(confidence * 100) };
+    return { label: t('confidenceLow') || 'Low Confidence', color: '#dc2626', fillPercent: Math.round(confidence * 100) };
   };
 
   return (
@@ -360,11 +360,11 @@ const SymptomChecker = ({ onClose, onBookConsultation }) => {
             )}
 
             {/* SECTION 5 - ANALYZE BUTTON */}
-            <button onClick={handleAnalyze} disabled={isAnalyzing || selectedSymptoms.length < 5}
+            <button onClick={handleAnalyze} disabled={isAnalyzing || selectedSymptoms.length < 4}
               style={{ 
                 width: '100%', background: colors.primary, color: '#fff', border: 'none', padding: '20px', 
                 borderRadius: '16px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', 
-                opacity: (isAnalyzing || selectedSymptoms.length < 5) ? 0.6 : 1, marginTop: '10px',
+                opacity: (isAnalyzing || selectedSymptoms.length < 4) ? 0.6 : 1, marginTop: '10px',
                 boxShadow: '0 4px 12px rgba(45,106,79,0.3)', transition: '0.2s'
               }}>
               {isAnalyzing ? (t('sympAnalyzing') || 'Analyzing...') : (t('sympAnalyzeBtn') || 'Analyze Symptoms')}
@@ -377,7 +377,7 @@ const SymptomChecker = ({ onClose, onBookConsultation }) => {
             {/* Caution Banner */}
             {aiResult.low_confidence_warning && (
               <div style={{ backgroundColor: colors.warningLight, color: colors.warning, padding: '12px', borderRadius: '8px', fontWeight: 'bold', border: `1px solid ${colors.warning}`, marginBottom: '16px', fontSize: '14px', textAlign: 'center' }}>
-                ⚠️ {t('lowConfidenceWarning') || 'Yeh ek estimate hai, sateek nahi'}
+                ⚠️ {t('lowConfidenceWarning') || 'The symptoms provided are vague. Please add more specific symptoms for an accurate prediction.'}
               </div>
             )}
 
@@ -398,12 +398,14 @@ const SymptomChecker = ({ onClose, onBookConsultation }) => {
                   {t('sympPredictedDisease') || 'Predicted Disease'}
                 </p>
                 <h3 style={{ margin: 0, fontSize: '32px', color: colors.text, fontWeight: '900' }}>
-                  {aiResult.predicted_disease_translated || aiResult.predicted_disease}
+                  1. {aiResult.predicted_disease_translated || aiResult.predicted_disease} ({Math.round(aiResult.confidence * 100)}%)
                 </h3>
                 {aiResult.alternative_diseases_translated && aiResult.alternative_diseases_translated.length > 0 && (
-                  <p style={{ marginTop: '8px', fontSize: '14px', color: colors.textMuted, fontWeight: 'bold' }}>
-                    {t('sympCouldAlsoBe') || 'Could also be:'} {aiResult.alternative_diseases_translated.join(', ')}
-                  </p>
+                  <div style={{ marginTop: '12px', fontSize: '16px', color: colors.textMuted, fontWeight: 'bold', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {aiResult.alternative_diseases_translated.map((d, i) => (
+                      <span key={i}>{i + 2}. {d.name} ({Math.round(d.confidence * 100)}%)</span>
+                    ))}
+                  </div>
                 )}
               </div>
               
@@ -426,7 +428,7 @@ const SymptomChecker = ({ onClose, onBookConsultation }) => {
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <span style={{ fontSize: '14px', fontWeight: 'bold', color: colors.text }}>{t('sympConfidence') || 'Confidence'}</span>
                 <span style={{ fontSize: '14px', fontWeight: 'bold', color: getConfidenceLabel(aiResult.confidence).color }}>
-                  {getConfidenceLabel(aiResult.confidence).label}
+                  {getConfidenceLabel(aiResult.confidence).label} ({Math.round(aiResult.confidence * 100)}%)
                 </span>
               </div>
               <div style={{ height: '10px', background: colors.border, borderRadius: '5px', overflow: 'hidden' }}>
@@ -490,6 +492,11 @@ const SymptomChecker = ({ onClose, onBookConsultation }) => {
               </button>
             </div>
             
+            {/* Disclaimer */}
+            <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '13px', color: colors.textMuted, fontStyle: 'italic', borderTop: `1px solid ${colors.border}`, paddingTop: '16px' }}>
+              {t('sympDisclaimer') || 'This is an AI-based preliminary assessment and not a confirmed medical diagnosis.'}
+            </div>
+
           </div>
         )}
       </div>

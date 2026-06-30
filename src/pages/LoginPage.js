@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import API_BASE_URL from '../config';
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ email: '', password: '' });
@@ -177,13 +179,13 @@ export default function LoginPage() {
         onMouseOver={(e) => e.target.style.color = '#0D47A1'}
         onMouseOut={(e) => e.target.style.color = '#1565C0'}
       >
-        ← Back
+        ← {t('back') || 'Back'}
       </button>
       
       <div style={cardStyle}>
         <div style={{ textAlign: 'center', fontSize: '44px', marginBottom: '8px' }}>👨‍⚕️</div>
-        <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1565C0', textAlign: 'center', margin: '0 0 4px 0' }}>Doctor Sign In</h2>
-        <p style={{ fontSize: '13px', color: '#555', textAlign: 'center', margin: '0' }}>Access your patient dashboard</p>
+        <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1565C0', textAlign: 'center', margin: '0 0 4px 0' }}>{t('doctorSignInTitle') || 'Doctor Sign In'}</h2>
+        <p style={{ fontSize: '13px', color: '#555', textAlign: 'center', margin: '0' }}>{t('doctorSignInSub') || 'Access your patient dashboard'}</p>
         
         <div style={{ borderTop: '1px solid #E0E0E0', margin: '16px 0' }}></div>
 
@@ -193,20 +195,20 @@ export default function LoginPage() {
               onClick={() => { setShowForgotPassword(false); setForgotMsg(''); setForgotError(''); setForgotEmail(''); }}
               style={{ fontSize: '13px', color: '#1565C0', cursor: 'pointer', marginBottom: '16px', fontWeight: 'bold' }}
             >
-              ← Back to Login
+              {t('backToLogin') || '← Back to Login'}
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1565C0', margin: '0 0 8px 0' }}>Reset Password</h3>
-            <p style={{ fontSize: '13px', color: '#555', margin: '0 0 20px 0' }}>Enter your registered email to receive a temporary password.</p>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1565C0', margin: '0 0 8px 0' }}>{t('resetPassword') || 'Reset Password'}</h3>
+            <p style={{ fontSize: '13px', color: '#555', margin: '0 0 20px 0' }}>{t('resetPwdSub') || 'Enter your registered email to receive a temporary password.'}</p>
             <form onSubmit={handleForgotPassword}>
               <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>Email Address</label>
+                <label style={labelStyle}>{t('email') || 'Email'}</label>
                 <input
                   type="email"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
                   placeholder="doctor@example.com"
                   required
-                  style={{ ...inputStyle, padding: '12px 16px' }}
+                  style={inputStyle}
                   onFocus={(e) => e.target.style.borderColor = '#1565C0'}
                   onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
                 />
@@ -217,42 +219,37 @@ export default function LoginPage() {
                 onMouseOver={(e) => e.target.style.backgroundColor = '#0D47A1'}
                 onMouseOut={(e) => e.target.style.backgroundColor = '#1565C0'}
               >
-                {forgotLoading ? 'Sending...' : 'Send Reset Password'}
+                {forgotLoading ? '...' : (t('sendNewPwdBtn') || 'Send New Password')}
               </button>
             </form>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} noValidate>
-            <div style={{ marginBottom: '16px' }}>
-              <label htmlFor="email" style={labelStyle}>Email Address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="doctor@example.com"
-                value={form.email}
-                onChange={handleChange}
-                required
-                autoComplete="email"
-                style={{ ...inputStyle, padding: '12px 16px' }}
-                onFocus={(e) => e.target.style.borderColor = '#1565C0'}
-                onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
-              />
-            </div>
-            
-            <div style={{ marginBottom: '8px' }}>
-              <label htmlFor="password" style={labelStyle}>Password</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  id="password"
+          <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={labelStyle}>{t('email') || 'Email'}</label>
+                <input 
+                  type="email" 
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="doctor@example.com" 
+                  style={inputStyle}
+                  required
+                  onFocus={(e) => e.target.style.borderColor = '#1565C0'}
+                  onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+                />
+              </div>
+              
+              <div style={{ marginBottom: '8px', position: 'relative' }}>
+                <label style={labelStyle}>{t('password') || 'Password'}</label>
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
                   value={form.password}
                   onChange={handleChange}
-                  required
-                  autoComplete="current-password"
+                  placeholder="••••••••" 
                   style={inputStyle}
+                  required
                   onFocus={(e) => e.target.style.borderColor = '#1565C0'}
                   onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
                 />
@@ -260,35 +257,30 @@ export default function LoginPage() {
                   {showPassword ? '🙈' : '👁️'}
                 </button>
               </div>
-            </div>
 
-            <div style={{ textAlign: 'right', marginBottom: '20px' }}>
-              <span
+              <div 
                 onClick={() => { setShowForgotPassword(true); setError(''); }}
-                style={{ fontSize: '13px', color: '#1565C0', cursor: 'pointer', textDecoration: 'underline' }}
+                style={{ fontSize: '12px', color: '#1565C0', textAlign: 'right', cursor: 'pointer', textDecoration: 'underline', marginBottom: '20px' }}
               >
-                Forgot Password?
-              </span>
-            </div>
+                {t('forgotPwd') || 'Forgot Password?'}
+              </div>
 
-            {error && <div style={errorStyle}>⚠️ {error}</div>}
+              {error && <div style={errorStyle}>{error}</div>}
 
-            <button
-              type="submit"
-              disabled={loading}
-              style={btnStyle}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#0D47A1'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#1565C0'}
-            >
-              {loading ? 'Signing In...' : 'Sign In'}
-            </button>
-          </form>
-        )}
+              <button type="submit" style={{...btnStyle, opacity: loading ? 0.7 : 1}} disabled={loading}>
+                {loading ? '...' : (t('loginBtn') || 'Login →')}
+              </button>
 
-        <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: '#555' }}>
-          Don't have an account?{' '}
-          <Link to="/doctor-registration" style={{ color: '#1565C0', textDecoration: 'none' }}>Register here →</Link>
-        </p>
+              <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                <span 
+                  onClick={() => navigate('/doctor-registration')}
+                  style={{ fontSize: '14px', color: '#1565C0', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                  {t('newDoctorRegister') || 'New doctor? Register here'}
+                </span>
+              </div>
+            </form>
+          )}
       </div>
     </div>
   );

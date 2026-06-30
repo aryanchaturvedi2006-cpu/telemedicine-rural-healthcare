@@ -148,8 +148,8 @@ const PatientRegistration = () => {
           </div>
         </div>
 
-        <h2 className="tm-form-title">{step === 1 ? 'Tell us about yourself' : 'Where are you located?'}</h2>
-        <p className="tm-form-subtitle">{step === 1 ? 'Enter your details to get started' : 'Help us find doctors near you'}</p>
+        <h2 className="tm-form-title">{step === 1 ? t('step1Title') || 'Tell us about yourself' : t('step2Title') || 'Where are you located?'}</h2>
+        <p className="tm-form-subtitle">{step === 1 ? t('step1Sub') || 'Enter your details to get started' : t('step2Sub') || 'Help us find doctors near you'}</p>
 
         {step === 1 ? (
           <form onSubmit={handleNext} className="tm-form">
@@ -161,8 +161,8 @@ const PatientRegistration = () => {
             <input type="number" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} placeholder={t('mobileNumberPH')} className="tm-input" />
             
             <div style={{ marginTop: '14px', marginBottom: '14px' }}>
-              <label style={{ display: 'block', fontSize: '14px', color: '#333', fontWeight: '500', marginBottom: '2px' }}>Set 4-Digit PIN</label>
-              <div style={{ fontSize: '12px', color: '#888', marginBottom: '6px' }}>You'll use this PIN to login next time</div>
+              <label style={{ display: 'block', fontSize: '14px', color: '#333', fontWeight: '500', marginBottom: '2px' }}>{t('setPin') || 'Set 4-Digit PIN'}</label>
+              <div style={{ fontSize: '12px', color: '#888', marginBottom: '6px' }}>{t('pinDesc') || "You'll use this PIN to login next time"}</div>
               <div style={{ position: 'relative' }}>
                 <input 
                   type={showPin ? 'text' : 'password'}
@@ -171,7 +171,7 @@ const PatientRegistration = () => {
                   name="pin" 
                   value={formData.pin} 
                   onChange={handleChange} 
-                  placeholder="Enter 4-digit PIN" 
+                  placeholder={t('enterPin') || "Enter 4-digit PIN"} 
                   className="tm-input" 
                   style={{ margin: 0, paddingRight: '44px' }}
                 />
@@ -237,7 +237,7 @@ const PatientRegistration = () => {
             )}
             {networkError && (
               <div className="tm-error-banner">
-                ⚠️ Could not connect to server. Your data has been saved locally. You can continue.
+                {t('networkError') || '⚠️ Could not connect to server. Your data has been saved locally. You can continue.'}
               </div>
             )}
           </form>
