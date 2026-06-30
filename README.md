@@ -1,70 +1,257 @@
-# Getting Started with Create React App
+# 🌿 TeleMed Rural — AI/ML Telemedicine Optimization System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> **PS-1 Internship Project — JK Lakshmipat University**  
+> Built to bridge the healthcare gap in rural India using AI, ML, and multilingual technology.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 📌 Project Overview
 
-### `npm start`
+TeleMed Rural is a full-stack telemedicine web application designed specifically for rural healthcare in India. The system connects rural patients with doctors through an easy-to-use interface that supports **14 Indian languages**, requires **no password or OTP**, and uses **AI/ML models** to optimize telemedicine deployment.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Problem Statement
+Rural India faces a severe shortage of doctors — 1 doctor per 11,000 people vs WHO's recommended 1 per 1,000. Patients in villages cannot access specialists, don't speak English, and have low digital literacy.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Our Solution
+- Multilingual app (14 languages) so anyone can use it
+- No complex registration — just name, age, gender, mobile number
+- AI chatbot (Aarogya AI) for health guidance
+- Voice input for symptoms — no typing needed
+- ML models to predict doctor demand and optimize deployment
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🚀 Features
 
-### `npm run build`
+### Patient Side
+- 🌐 **14 Indian Languages** — Hindi, Gujarati, Marathi, Tamil, Telugu, Punjabi, Bengali, Kannada, Malayalam, Assamese, Odia, Mewari, Nagamese, English
+- 📱 **Simple Registration** — No password, no OTP — just mobile number
+- 🎤 **Voice Input** — Speak symptoms in Hindi/English, auto-fills the form
+- 📷 **Photo Upload** — Upload injury/symptom photo during booking
+- 👨‍⚕️ **Nearby Doctors** — Shows available doctors from same state
+- 📅 **Appointment Booking** — Book Video Call, Audio Call, or In-Person
+- 🤖 **Aarogya AI Chatbot** — 24/7 health guidance in Hindi & English
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Doctor Side
+- 🔐 **Secure Login** — Email + Password with bcrypt encryption
+- 📋 **Dashboard** — View all pending and confirmed appointments
+- ✅ **Accept/Decline** — Manage appointment requests
+- 🟢 **Availability Toggle** — Go online/offline with one click
+- 📸 **Patient Photos** — View injury photos uploaded by patients
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### AI/ML Features
+- 🧠 **Doctor Demand Prediction** — Predicts which states/specializations need more doctors (Random Forest)
+- 💊 **Symptom to Specialization** — Suggests doctor type based on symptoms (NLP + Naive Bayes)
+- 📊 **No-show Prediction** — Predicts appointment no-shows (Logistic Regression)
+- 📈 **Data Analysis** — State-wise doctor shortage visualization
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## 🛠️ Tech Stack
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React.js, React Router v7, Context API |
+| Backend | Node.js, Express.js v5 |
+| Database | MySQL (mysql2) |
+| Authentication | bcryptjs, localStorage |
+| AI Chatbot | Google Gemini API |
+| ML Models | Python, Scikit-learn, Pandas, Matplotlib |
+| Voice Input | Web Speech API (built-in browser) |
+| Languages | 14 Indian languages via custom translations |
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 📁 Project Structure
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```
+telemedicine-rural-healthcare-main/
+├── src/                          # React Frontend
+│   ├── pages/
+│   │   ├── LanguageSelector.js   # 14 language selection
+│   │   ├── Landing.js            # Home page
+│   │   ├── PatientRegistration.js
+│   │   ├── PatientLogin.js
+│   │   ├── PatientDashboard.js   # Booking + nearby doctors
+│   │   ├── DoctorRegistration.js
+│   │   ├── LoginPage.js          # Doctor login
+│   │   └── DoctorDashboard.js    # Appointments + availability
+│   ├── context/
+│   │   ├── AuthContext.js        # Authentication state
+│   │   └── LanguageContext.js    # Language + translations
+│   └── translations/
+│       └── translations.js       # 14 language translations
+├── backend/                      # Node.js Backend
+│   ├── routes/
+│   │   ├── patients.js           # Patient CRUD + login
+│   │   ├── doctors.js            # Doctor CRUD + login + availability
+│   │   └── appointments.js       # Booking + status management
+│   ├── config/
+│   │   └── db.js                 # MySQL connection pool
+│   └── server.js                 # Express server
+└── ml/                           # Python ML Models (In Progress)
+    ├── data_analysis.ipynb
+    ├── demand_prediction.ipynb
+    ├── symptom_classifier.ipynb
+    └── noshow_prediction.ipynb
+```
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## ⚙️ Setup & Installation
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Prerequisites
+- Node.js v18+
+- MySQL 8.0+
+- Python 3.9+ (for ML models)
+- XAMPP or MySQL Workbench
 
-### Code Splitting
+### 1. Clone the repository
+```bash
+git clone https://github.com/aryanchaturvedi2006-cpu/telemedicine-rural-healthcare.git
+cd telemedicine-rural-healthcare/telemedicine-rural-healthcare-main
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 2. Database Setup
+Open MySQL Workbench and run:
+```sql
+CREATE DATABASE telemedicine_db;
+USE telemedicine_db;
 
-### Analyzing the Bundle Size
+CREATE TABLE patients (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  age INT,
+  gender VARCHAR(20),
+  mobile VARCHAR(15),
+  street VARCHAR(200),
+  village VARCHAR(100),
+  state VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+CREATE TABLE doctors (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100) UNIQUE,
+  mobile VARCHAR(15),
+  specialization VARCHAR(100),
+  hospital_name VARCHAR(200),
+  area VARCHAR(100),
+  state VARCHAR(100),
+  password VARCHAR(255),
+  is_available BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-### Making a Progressive Web App
+CREATE TABLE appointments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  patient_id INT,
+  doctor_id INT,
+  date DATE,
+  time TIME,
+  mode VARCHAR(50),
+  symptoms TEXT,
+  injury_photo LONGTEXT,
+  status VARCHAR(50) DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (patient_id) REFERENCES patients(id),
+  FOREIGN KEY (doctor_id) REFERENCES doctors(id)
+);
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### 3. Backend Setup
+```bash
+cd backend
+npm install
+```
 
-### Advanced Configuration
+Create `backend/.env` file:
+```
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=telemedicine_db
+PORT=5000
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Start backend:
+```bash
+npm start
+```
 
-### Deployment
+### 4. Frontend Setup
+```bash
+cd ..
+npm install
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Create `.env` file in root:
+```
+REACT_APP_GEMINI_API_KEY=your_gemini_api_key
+```
 
-### `npm run build` fails to minify
+Start frontend:
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### 5. Open in browser
+```
+http://localhost:3000
+```
+
+---
+
+## 🔑 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/patients/register` | Register new patient |
+| POST | `/api/patients/login` | Patient login (mobile only) |
+| POST | `/api/doctors/register` | Register new doctor |
+| POST | `/api/doctors/login` | Doctor login (email + password) |
+| GET | `/api/doctors/nearby?state=Gujarat` | Get doctors by state |
+| PATCH | `/api/doctors/:id/availability` | Toggle doctor availability |
+| POST | `/api/appointments/book` | Book appointment |
+| GET | `/api/appointments/patient/:id` | Get patient appointments |
+| GET | `/api/appointments/doctor/:id` | Get doctor appointments |
+| PATCH | `/api/appointments/:id/status` | Update appointment status |
+
+---
+
+## 👥 Team
+
+| Name | Role |
+|------|------|
+| Aryan Chaturvedi | Full Stack Development, AI Integration, Frontend & Backend Development |
+| Kartik Phulwari | Full Stack Development, AI/ML Models, Chatbot Development |
+
+**Institution:** JK Lakshmipat University, Jaipur  
+**Program:** PS-1 Internship 2026  
+**Duration:** May — July 2026
+
+---
+
+## 📊 ML Models (In Progress)
+
+1. **Doctor Demand Prediction** — Random Forest Classifier to predict which states need more doctors based on population, existing doctor count, and appointment data
+2. **Symptom to Specialization** — NLP-based classifier using TF-IDF + Naive Bayes to suggest appropriate doctor specialization from patient symptoms
+3. **Appointment No-show Prediction** — Logistic Regression model to predict which patients are likely to miss appointments
+
+---
+
+## 🔮 Future Scope
+
+- Video call integration (WebRTC)
+- Prescription management
+- Medicine reminder notifications
+- Integration with government health schemes (Ayushman Bharat)
+- Offline mode for low connectivity areas
+- Android/iOS mobile app
+
+---
+
+## 📄 License
+
+This project is built for educational purposes as part of PS-1 Internship at JK Lakshmipat University.
