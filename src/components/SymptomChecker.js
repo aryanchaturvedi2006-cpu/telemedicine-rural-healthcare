@@ -475,7 +475,7 @@ const SymptomChecker = ({ onClose, onBookConsultation }) => {
             <div style={{ display: 'flex', gap: '16px' }}>
               <button onClick={() => {
                 const symptomString = `${aiResult.predicted_disease_translated || aiResult.predicted_disease} - ${selectedSymptoms.map(s => s.display).join(', ')}`;
-                onBookConsultation(symptomString);
+                onBookConsultation(symptomString, aiResult.recommended_specialization);
               }}
                 style={{ flex: 2, background: colors.primary, color: '#fff', border: 'none', padding: '16px', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', transition: '0.2s', boxShadow: '0 4px 12px rgba(45,106,79,0.3)' }}
                 onMouseOver={e => e.currentTarget.style.background = colors.primaryLight}

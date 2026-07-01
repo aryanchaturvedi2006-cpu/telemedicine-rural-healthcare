@@ -55,9 +55,14 @@ const Landing = () => {
 
   return (
     <div className="landing-container">
-      <div className="landing-header-top">
+      <div className="landing-header-top" style={{ display: 'flex', justifyContent: 'space-between', padding: '20px' }}>
         <button className="btn-change-language" onClick={handleBack}>
           ← {t('changeLanguage')}
+        </button>
+        <button onClick={() => navigate('/admin-dashboard')} style={{
+          backgroundColor: 'transparent', color: '#2E7D32', border: '1px solid #2E7D32', borderRadius: '20px', padding: '6px 14px', cursor: 'pointer', fontWeight: '600', fontSize: '13px'
+        }}>
+          Admin Dashboard ⚙️
         </button>
       </div>
 

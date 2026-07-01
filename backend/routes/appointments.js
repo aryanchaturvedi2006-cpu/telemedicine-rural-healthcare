@@ -113,4 +113,42 @@ router.patch('/:id/start-call', async (req, res) => {
   }
 });
 
+// PATCH /api/appointments/:id/patient-message
+router.patch('/:id/patient-message', async (req, res) => {
+  try {
+    const { patient_message_audio } = req.body;
+    if (!patient_message_audio) {
+      return res.status(400).json({ success: false, message: 'Audio required' });
+    }
+    await pool.query('UPDATE appointments SET patient_message_audio = ? WHERE id = ?', [patient_message_audio, req.params.id]);
+    res.status(200).json({ success: true, message: 'Message sent successfully' });
+  } catch (error) {
+    console.error('Error sending patient message:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// PATCH /api/appointments/:id/prescription
+router.patch('/:id/prescription', async (req, res) => {
+  try {
+    const { prescription_text, medicines, prescription_image, status } = req.body;
+    let query = 'UPDATE appointments SET prescription_text = ?, medicines = ?, prescription_image = ?';
+    let params = [prescription_text, medicines, prescription_image];
+    
+    if (status) {
+      query += ', status = ?';
+      params.push(status);
+    }
+    
+    query += ' WHERE id = ?';
+    params.push(req.params.id);
+    
+    await pool.query(query, params);
+    res.status(200).json({ success: true, message: 'Prescription saved successfully' });
+  } catch (error) {
+    console.error('Error saving prescription:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 module.exports = router;

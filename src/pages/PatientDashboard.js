@@ -63,6 +63,75 @@ const PatientDashboard = () => {
   const videoRef = useRef(null);
   const [videoStream, setVideoStream] = useState(null);
 
+  // Patient Message state
+  const [activeRecordApptId, setActiveRecordApptId] = useState(null);
+  const messageMediaRecorderRef = useRef(null);
+  const messageAudioChunksRef = useRef([]);
+  const [sendingMessageApptId, setSendingMessageApptId] = useState(null);
+  const [messageSuccessApptId, setMessageSuccessApptId] = useState(null);
+
+  const RECORD_MESSAGE_LBL = {
+    hi: '🎤 डॉक्टर को वॉइस मैसेज भेजें (अगर डॉक्टर लेट है)',
+    en: '🎤 Send Voice Message to Doctor (if doctor is late)'
+  };
+  const STOP_RECORDING_LBL = {
+    hi: '⏹️ रिकॉर्डिंग रोकें और भेजें',
+    en: '⏹️ Stop Recording & Send'
+  };
+  const SENDING_LBL = {
+    hi: '⏳ भेजा जा रहा है...',
+    en: '⏳ Sending...'
+  };
+  const SENT_LBL = {
+    hi: '✅ मैसेज भेज दिया गया',
+    en: '✅ Message Sent'
+  };
+
+  const CountdownTimer = ({ dateStr, timeStr, language }) => {
+    const [timeLeft, setTimeLeft] = useState('');
+
+    useEffect(() => {
+      if (!dateStr || !timeStr) return;
+
+      const updateTimer = () => {
+        try {
+          const [hours, minutes] = timeStr.split(':').map(Number);
+          const apptDate = new Date(dateStr);
+          apptDate.setHours(hours, minutes, 0, 0);
+          
+          const now = new Date();
+          const diffMs = apptDate - now;
+          
+          if (diffMs <= 0) {
+            setTimeLeft(language === 'hi' ? '— समय हो चुका है' : '— Time has passed');
+            return;
+          }
+          
+          const diffSeconds = Math.floor(diffMs / 1000);
+          const hrs = Math.floor(diffSeconds / 3600);
+          const mins = Math.floor((diffSeconds % 3600) / 60);
+          const secs = diffSeconds % 60;
+          
+          const pad = (num) => String(num).padStart(2, '0');
+          
+          if (language === 'hi') {
+            setTimeLeft(`— ${hrs > 0 ? `${hrs} घंटे ` : ''}${pad(mins)}:${pad(secs)} बाद`);
+          } else {
+            setTimeLeft(`— in ${hrs > 0 ? `${hrs}h ` : ''}${pad(mins)}m ${pad(secs)}s`);
+          }
+        } catch (e) {
+          setTimeLeft('');
+        }
+      };
+
+      updateTimer();
+      const interval = setInterval(updateTimer, 1000);
+      return () => clearInterval(interval);
+    }, [dateStr, timeStr, language]);
+
+    return <span>{timeLeft}</span>;
+  };
+
   // Geolocation state
   const [patientCoords, setPatientCoords] = useState(null);
   const [locationDenied, setLocationDenied] = useState(false);
@@ -77,6 +146,80 @@ const PatientDashboard = () => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // Fetch Appointments
+  const fetchAppointments = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/appointments/patient/${patientId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setAppointments(data.data || []);
+      }
+    } catch (e) {
+      console.error('Error fetching appointments:', e);
+    } finally {
+      setApptLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAppointments();
+    const interval = setInterval(fetchAppointments, 5000);
+    return () => clearInterval(interval);
+  }, [patientId]);
+
+  // Handle Recording Voice Message for Doctor
+  const startRecordingMessage = async (apptId) => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      messageMediaRecorderRef.current = mediaRecorder;
+      messageAudioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          messageAudioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(messageAudioChunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async () => {
+          const base64AudioMessage = reader.result;
+          setSendingMessageApptId(apptId);
+          try {
+            await fetch(`${API_BASE_URL}/api/appointments/${apptId}/patient-message`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ patient_message_audio: base64AudioMessage })
+            });
+            setMessageSuccessApptId(apptId);
+            setTimeout(() => setMessageSuccessApptId(null), 3000);
+          } catch (e) {
+            console.error('Error sending message:', e);
+          } finally {
+            setSendingMessageApptId(null);
+            setActiveRecordApptId(null);
+          }
+        };
+      };
+
+      mediaRecorder.start();
+      setActiveRecordApptId(apptId);
+    } catch (err) {
+      console.error('Error accessing microphone', err);
+      alert('Microphone access is required to record a message.');
+    }
+  };
+
+  const stopRecordingMessage = () => {
+    if (messageMediaRecorderRef.current && activeRecordApptId) {
+      messageMediaRecorderRef.current.stop();
+      messageMediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    }
+  };
 
   // Fetch Symptoms
   useEffect(() => {
@@ -492,6 +635,11 @@ const PatientDashboard = () => {
       if (res.ok) {
         setBookSuccess(t('consultationRequestSent') || 'Appointment booked successfully!');
         setBookForm({ doctor_id:'',mode:'video',symptoms:'',symptom_audio:'',injury_photo:'' });
+        
+        // Play notification sound
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        audio.play().catch(e => console.log('Audio play failed:', e));
+        
         const apptRes = await fetch(`${API_BASE_URL}/api/appointments/patient/${patientId}`);
         if (apptRes.ok) { 
           const apptData = await apptRes.json(); 
@@ -528,11 +676,18 @@ const PatientDashboard = () => {
 
   return (
     <div className="tm-page-container">
-      <button className="tm-back-btn" onClick={() => navigate(-1)}>
-        ← Back
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', position: 'absolute', top: 0, left: 0, right: 0 }}>
+        <button className="tm-back-btn" onClick={() => navigate(-1)} style={{ position: 'relative', top: 'auto', left: 'auto', minHeight: 'auto', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>
+          ← Back
+        </button>
+        <button onClick={() => navigate('/patient-history')} style={{
+          backgroundColor: '#fff', color: '#2E7D32', border: '2px solid #2E7D32', borderRadius: '24px', padding: '10px 20px', cursor: 'pointer', fontWeight: '700', fontSize: '15px', display: 'flex', alignItems: 'center', boxShadow: '0 2px 8px rgba(46,125,50,0.15)'
+        }}>
+          {t('myHealthRecords') || 'My Health Records'}
+        </button>
+      </div>
 
-      <div className="tm-dashboard-content">
+      <div className="tm-dashboard-content" style={{ marginTop: '40px' }}>
         <div className="tm-card tm-header-card">
           <div className="tm-header-info">
             <h1 className="tm-greeting">Hello, {name} 👋</h1>
@@ -676,10 +831,35 @@ const PatientDashboard = () => {
                   <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#E3F2FD', borderRadius: '8px', border: '1px solid #90CAF9' }}>
                     <p style={{ margin: 0, color: '#1565C0', fontWeight: 'bold' }}>
                       <span style={{ fontSize: '18px', marginRight: '8px' }}>⏰</span>
-                      {SCHEDULED_TIME_MSG[language] || SCHEDULED_TIME_MSG.en} {appt.scheduled_time}
+                      {SCHEDULED_TIME_MSG[language] || SCHEDULED_TIME_MSG.en} {appt.scheduled_time} <CountdownTimer dateStr={appt.date} timeStr={appt.scheduled_time} language={language} />
                     </p>
                   </div>
                 )}
+
+                {appt.status === 'confirmed' && (
+                  <div style={{ marginTop: '16px', padding: '16px', background: '#F0FDF4', borderRadius: '12px', border: '1px solid #BBF7D0' }}>
+                    <p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#166534', fontWeight: 'bold' }}>
+                      {RECORD_MESSAGE_LBL[language] || RECORD_MESSAGE_LBL.en}
+                    </p>
+                    {activeRecordApptId === appt.id ? (
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div style={{ width: '12px', height: '12px', background: 'red', borderRadius: '50%', animation: 'aarogyaPulse 1s infinite' }}></div>
+                        <button onClick={stopRecordingMessage} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                          {STOP_RECORDING_LBL[language] || STOP_RECORDING_LBL.en}
+                        </button>
+                      </div>
+                    ) : sendingMessageApptId === appt.id ? (
+                      <div style={{ color: '#0284c7', fontWeight: 'bold' }}>{SENDING_LBL[language] || SENDING_LBL.en}</div>
+                    ) : messageSuccessApptId === appt.id ? (
+                      <div style={{ color: '#16a34a', fontWeight: 'bold' }}>{SENT_LBL[language] || SENT_LBL.en}</div>
+                    ) : (
+                      <button onClick={() => startRecordingMessage(appt.id)} style={{ background: '#22c55e', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        🎤 Record
+                      </button>
+                    )}
+                  </div>
+                )}
+
                 {appt.status === 'confirmed' && (appt.mode === 'Video Call' || appt.mode === 'video') && (
                   <div style={{ marginTop: '12px' }}>
                     <button 
@@ -759,14 +939,6 @@ const PatientDashboard = () => {
           )}
         </div>
 
-        <div className="tm-card tm-records-card" onClick={() => alert('Feature coming soon!')} style={{ cursor:'pointer' }}>
-          <div className="tm-records-left">
-            <div className="tm-records-icon">📁</div>
-            <h2 className="tm-records-title">My Health Records</h2>
-            <div className="tm-badge-coming-soon">Coming Soon</div>
-          </div>
-          <p className="tm-records-sub" style={{ marginTop:'8px' }}>Your prescriptions and test reports will appear here</p>
-        </div>
       </div>
 
       {/* ── FLOATING SYMPTOM CHECKER BUTTON REMOVED (now a banner) ── */}
@@ -808,9 +980,32 @@ const PatientDashboard = () => {
       {showSymptomModal && (
         <SymptomChecker 
           onClose={() => setShowSymptomModal(false)}
-          onBookConsultation={(symptomsString) => {
+          onBookConsultation={async (symptomsString, specialization) => {
             setBookForm(prev => ({ ...prev, symptoms: symptomsString }));
             setShowSymptomModal(false);
+            
+            // AI SMART ROUTING: Fetch optimal doctor
+            if (specialization) {
+              try {
+                const res = await fetch(`${API_BASE_URL}/api/doctors/optimal?specialization=${encodeURIComponent(specialization)}`);
+                const result = await res.json();
+                if (result.success && result.data) {
+                  setBookForm(prev => ({ ...prev, doctor_id: result.data.id }));
+                  
+                  // Generate translation for AI Assigned message
+                  let msgTemplate = t('aiAssignedMsg') || "✨ AI has automatically assigned you to Dr. {name} ({specialist}) for the shortest waiting time.";
+                  let finalMsg = msgTemplate.replace('{name}', result.data.name).replace('{specialist}', result.data.specialization);
+                  
+                  setBookSuccess(finalMsg);
+                }
+              } catch (err) {
+                console.error("Failed to fetch optimal doctor", err);
+              }
+            } else {
+              setBookSuccess('');
+              setBookError('');
+            }
+            
             setShowModal(true);
           }}
         />
@@ -825,7 +1020,21 @@ const PatientDashboard = () => {
               <button onClick={() => setShowModal(false)} style={{ background:'none', border:'none', fontSize:'22px', cursor:'pointer', color:'#6b7280' }}>&times;</button>
             </div>
             {bookError && <p style={{ color:'red', marginBottom:'12px', fontSize:'14px' }}>{bookError}</p>}
-            {bookSuccess && <p style={{ color:'green', marginBottom:'12px', fontSize:'14px' }}>{bookSuccess}</p>}
+            {bookSuccess && (
+              <div style={{
+                backgroundColor: bookSuccess.includes('✨') ? '#F0FDF4' : '#E8F5E9',
+                color: bookSuccess.includes('✨') ? '#16A34A' : 'green',
+                padding: '12px',
+                borderRadius: '8px',
+                marginBottom: '16px',
+                fontSize: '14px',
+                border: bookSuccess.includes('✨') ? '1px solid #BBF7D0' : 'none',
+                fontWeight: bookSuccess.includes('✨') ? 'bold' : 'normal',
+                boxShadow: bookSuccess.includes('✨') ? '0 2px 8px rgba(34,197,94,0.15)' : 'none'
+              }}>
+                {bookSuccess}
+              </div>
+            )}
             <form onSubmit={handleBookSubmit}>
               <div style={{ marginBottom:'14px' }}>
                 <label style={labelStyle}>Doctor</label>

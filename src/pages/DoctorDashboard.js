@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -14,6 +14,7 @@ const DoctorDashboard = () => {
   const doctorName = doctorData.name || 'Doctor';
 
   const [appointments, setAppointments] = useState([]);
+  const prevApptIdsRef = useRef(new Set());
   const [apptLoading, setApptLoading] = useState(true);
   const [apptError, setApptError] = useState('');
   const [isAvailable, setIsAvailable] = useState(
@@ -31,10 +32,21 @@ const DoctorDashboard = () => {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Schedule modal state
+  // Schedule Modal State
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [selectedApptId, setSelectedApptId] = useState(null);
   const [scheduledTime, setScheduledTime] = useState('');
+  
+  // Prescription Modal State
+  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
+  const [activeApptIdForPrescription, setActiveApptIdForPrescription] = useState(null);
+  const [prescriptionForm, setPrescriptionForm] = useState({ medicines: '', notes: '', image: '' });
+  const [submittingPrescription, setSubmittingPrescription] = useState(false);
+
+  // Geo-location state
+  const [doctorCoords, setDoctorCoords] = useState(null);
+  const [locationDenied, setLocationDenied] = useState(false);
+  const [hideBanner, setHideBanner] = useState(false);
 
   const LOCATION_BANNER_LABEL = {
     hi: "मरीजों को सटीक दूरी दिखाने के लिए लोकेशन जोड़ें",
@@ -47,16 +59,23 @@ const DoctorDashboard = () => {
     bn: "রোগীদের সঠিক দূরত্ব দেখাতে অবস্থান যোগ করুন",
     kn: "ರೋಗಿಗಳಿಗೆ ನಿಖರವಾದ ದೂರವನ್ನು ತೋರಿಸಲು ಸ್ಥಳವನ್ನು ಸೇರಿಸಿ",
     ml: "രോഗികളെ കൃത്യമായ ദൂരം കാണിക്കാൻ ലൊക്കേഷൻ ചേർക്കൂ",
-    mw: "मरीजां नै सटीक दूरी दिखावण वास्ते लोकेशन जोड़ो",
-    as: "ৰোগীসকলক সঠিক দূৰত্ব দেখুৱাবলৈ অৱস্থান যোগ কৰক",
-    or: "ରୋଗୀଙ୍କୁ ସଠିକ୍ ଦୂରତା ଦେଖାଇବା ପାଇଁ ଲୋକେସନ୍ ଯୋଡନ୍ତୁ",
-    nm: "Moraa ke thik duri dekhabo laagi location jorok"
+    or: "ରୋଗୀଙ୍କୁ ସଠିକ୍ ଦୂରତା ଦେଖାଇବାକୁ ସ୍ଥାନ ଯୋଗ କରନ୍ତୁ",
+    as: "ৰোগীসকলক সঠিক দূৰত্ব দেখুৱাবলৈ স্থান যোগ কৰক",
+    mai: "मरीजकें सटीक दूरी देखाबय लेल स्थान जोड़ू",
+    ur: "مریضوں کو درست فاصلہ دکھانے کے لیے مقام شامل کریں"
   };
+
+  useEffect(() => {
+    if (doctorData.latitude && doctorData.longitude) {
+      setDoctorCoords({ latitude: doctorData.latitude, longitude: doctorData.longitude });
+    }
+  }, []);
 
   const handleLocationUpdate = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
+          setDoctorCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
           try {
             const res = await fetch(`${API_BASE_URL}/api/doctors/${doctorId}/location`, {
               method: 'PATCH',
@@ -101,7 +120,17 @@ const DoctorDashboard = () => {
         const res = await fetch(`${API_BASE_URL}/api/appointments/doctor/${doctorId}`);
         if (res.ok) {
           const data = await res.json();
-          setAppointments(data.data || []);
+          const newAppointments = data.data || [];
+          setAppointments(newAppointments);
+          
+          const currentIds = new Set(newAppointments.map(a => a.id));
+          const newPendingAppts = newAppointments.filter(a => a.status === 'pending' && !prevApptIdsRef.current.has(a.id));
+          
+          if (newPendingAppts.length > 0 && prevApptIdsRef.current.size > 0) {
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2870/2870-preview.mp3');
+            audio.play().catch(e => console.log('Audio play failed:', e));
+          }
+          prevApptIdsRef.current = currentIds;
         } else {
           let errorData = {};
           try { errorData = await res.json(); } catch (e) {}
@@ -191,6 +220,54 @@ const DoctorDashboard = () => {
       }
     } catch (err) {
       console.error('Error starting call:', err);
+    }
+  };
+
+  const handleOpenPrescriptionModal = (apptId) => {
+    setActiveApptIdForPrescription(apptId);
+    setPrescriptionForm({ medicines: '', notes: '' });
+    setShowPrescriptionModal(true);
+  };
+
+  const handleSubmitPrescription = async (e) => {
+    e.preventDefault();
+    if (!activeApptIdForPrescription) return;
+    
+    setSubmittingPrescription(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/appointments/${activeApptIdForPrescription}/prescription`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prescription_text: prescriptionForm.notes,
+          medicines: prescriptionForm.medicines,
+          prescription_image: prescriptionForm.image,
+          status: 'completed'
+        })
+      });
+      
+      if (res.ok) {
+        setShowPrescriptionModal(false);
+        setActiveApptIdForPrescription(null);
+        setPrescriptionForm({ medicines: '', notes: '', image: '' });
+        
+        // Refresh the list
+        const apptRes = await fetch(`${API_BASE_URL}/api/appointments/doctor/${doctorId}`);
+        if (apptRes.ok) {
+          const apptData = await apptRes.json();
+          setAppointments(apptData.data || []);
+        }
+        
+        alert('Prescription saved and appointment completed!');
+      } else {
+        const data = await res.json();
+        alert(data.message || 'Failed to save prescription');
+      }
+    } catch (err) {
+      console.error('Error saving prescription:', err);
+      alert('An error occurred while saving prescription.');
+    } finally {
+      setSubmittingPrescription(false);
     }
   };
 
@@ -494,19 +571,38 @@ const DoctorDashboard = () => {
                 )}
                 {appt.symptom_audio && (
                   <div style={{ marginBottom: '12px' }}>
+                    <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#555' }}><strong>Initial Voice Note:</strong></p>
                     <audio controls src={appt.symptom_audio} style={{ width: '100%', height: '32px' }} />
                   </div>
                 )}
+                {appt.patient_message_audio && (
+                  <div style={{ marginBottom: '12px', background: '#FEF2F2', padding: '12px', borderRadius: '8px', border: '1px solid #FECACA' }}>
+                    <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#DC2626', fontWeight: 'bold' }}>⚠️ Patient Message (Late Reminder):</p>
+                    <audio controls src={appt.patient_message_audio} style={{ width: '100%', height: '32px' }} />
+                  </div>
+                )}
                 <div><span style={getStatusBadgeStyle(appt.status)}>{appt.status}</span></div>
-                {appt.status === 'confirmed' && (appt.mode === 'Video Call' || appt.mode === 'video') && (
-                  <button 
-                    onClick={() => handleStartCall(appt.id)}
-                    style={{
-                      marginTop: '16px', width: '100%', height: '52px', backgroundColor: '#1565C0', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer'
-                    }}
-                  >
-                    {t ? t('startVideoCall') || 'Start Video Call' : 'Start Video Call'}
-                  </button>
+                {appt.status === 'confirmed' && (
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                    {(appt.mode === 'Video Call' || appt.mode === 'video') && (
+                      <button 
+                        onClick={() => handleStartCall(appt.id)}
+                        style={{
+                          flex: 1, height: '52px', backgroundColor: '#1565C0', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer'
+                        }}
+                      >
+                        {t ? t('startVideoCall') || 'Start Video Call' : 'Start Video Call'}
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => handleOpenPrescriptionModal(appt.id)}
+                      style={{
+                        flex: 1, height: '52px', backgroundColor: '#2E7D32', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer'
+                      }}
+                    >
+                      Write Prescription
+                    </button>
+                  </div>
                 )}
               </div>
             ))
@@ -611,6 +707,76 @@ const DoctorDashboard = () => {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Prescription Modal */}
+      {showPrescriptionModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '16px' }}>
+          <div style={{ background: '#fff', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '500px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', boxSizing: 'border-box' }}>
+            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#2E7D32' }}>
+              ✍️ Write Prescription
+            </h2>
+            <form onSubmit={handleSubmitPrescription}>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#333', marginBottom: '6px' }}>
+                  Medicines
+                </label>
+                <textarea
+                  value={prescriptionForm.medicines}
+                  onChange={(e) => setPrescriptionForm({ ...prescriptionForm, medicines: e.target.value })}
+                  placeholder="E.g., Paracetamol 500mg, twice a day..."
+                  required
+                  style={{ width: '100%', minHeight: '80px', borderRadius: '10px', border: '1.5px solid #E0E0E0', padding: '12px 16px', fontSize: '15px', boxSizing: 'border-box', outline: 'none', resize: 'vertical' }}
+                />
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#333', marginBottom: '6px' }}>
+                  Doctor Notes / Advice
+                </label>
+                <textarea
+                  value={prescriptionForm.notes}
+                  onChange={(e) => setPrescriptionForm({ ...prescriptionForm, notes: e.target.value })}
+                  placeholder="E.g., Drink plenty of water, rest for 2 days..."
+                  style={{ width: '100%', minHeight: '80px', borderRadius: '10px', border: '1.5px solid #E0E0E0', padding: '12px 16px', fontSize: '15px', boxSizing: 'border-box', outline: 'none', resize: 'vertical' }}
+                />
+              </div>
+              <div style={{ marginBottom: '16px', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 'bold', color: '#334155', cursor: 'pointer' }}>
+                  <span>📷 Upload Photo of Prescription</span>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    capture="environment"
+                    style={{ display: 'none' }}
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setPrescriptionForm({ ...prescriptionForm, image: reader.result });
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                </label>
+                {prescriptionForm.image && (
+                  <div style={{ marginTop: '12px', position: 'relative', display: 'inline-block' }}>
+                    <img src={prescriptionForm.image} alt="Prescription" style={{ height: '80px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                    <button type="button" onClick={() => setPrescriptionForm({ ...prescriptionForm, image: '' })} style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                <button type="submit" disabled={submittingPrescription} style={{ flex: 1, height: '52px', backgroundColor: '#2E7D32', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', opacity: submittingPrescription ? 0.7 : 1 }}>
+                  {submittingPrescription ? 'Saving...' : 'Save Prescription'}
+                </button>
+                <button type="button" onClick={() => setShowPrescriptionModal(false)} style={{ flex: 1, height: '52px', backgroundColor: '#fff', color: '#6b7280', border: '1.5px solid #E0E0E0', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

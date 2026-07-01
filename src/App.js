@@ -17,6 +17,9 @@ import GovtSchemes from './pages/GovtSchemes';
 import LoginPage from './pages/LoginPage';
 import VideoCallRoom from './pages/VideoCallRoom';
 
+import AdminDashboard from './pages/AdminDashboard';
+import PatientHistory from './pages/PatientHistory';
+
 function App() {
   return (
     <AuthProvider>
@@ -35,6 +38,8 @@ function App() {
             <Route path="/patient-login" element={<PatientLogin />} />
             <Route path="/doctor-login" element={<LoginPage />} />
             <Route path="/video-call/:id" element={<VideoCallRoom />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/patient-history" element={<PatientHistory />} />
           </Routes>
         </Router>
       </LanguageProvider>

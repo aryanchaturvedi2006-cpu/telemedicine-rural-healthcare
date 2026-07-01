@@ -67,6 +67,57 @@ router.get('/nearby', async (req, res) => {
   }
 });
 
+router.get('/optimal', async (req, res) => {
+  try {
+    const { specialization } = req.query;
+    
+    let query = `
+      SELECT d.id, d.name, d.specialization, d.hospital_name,
+             COUNT(a.id) as pending_count
+      FROM doctors d
+      LEFT JOIN appointments a ON d.id = a.doctor_id AND a.status = 'pending'
+      WHERE d.is_available = 1
+    `;
+    let queryParams = [];
+
+    if (specialization) {
+      query += ` AND d.specialization LIKE ?`;
+      queryParams.push(`%${specialization}%`);
+    }
+
+    query += `
+      GROUP BY d.id
+      ORDER BY pending_count ASC
+      LIMIT 1
+    `;
+
+    const [doctors] = await pool.query(query, queryParams);
+
+    if (doctors.length === 0) {
+      // Fallback: If no specialist found, just find the doctor with lowest queue overall
+      const [anyDoctor] = await pool.query(`
+        SELECT d.id, d.name, d.specialization, d.hospital_name,
+               COUNT(a.id) as pending_count
+        FROM doctors d
+        LEFT JOIN appointments a ON d.id = a.doctor_id AND a.status = 'pending'
+        WHERE d.is_available = 1
+        GROUP BY d.id
+        ORDER BY pending_count ASC
+        LIMIT 1
+      `);
+      if (anyDoctor.length === 0) {
+        return res.status(404).json({ success: false, message: 'No available doctors found' });
+      }
+      return res.status(200).json({ success: true, data: anyDoctor[0], fallback: true });
+    }
+
+    res.status(200).json({ success: true, data: doctors[0], fallback: false });
+  } catch (error) {
+    console.error('Error fetching optimal doctor:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 router.post('/register', async (req, res) => {
   try {
     const { name, email, mobile, specialization, hospital_name, area, state, password } = req.body;

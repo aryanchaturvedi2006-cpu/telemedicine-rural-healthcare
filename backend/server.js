@@ -7,6 +7,7 @@ const pool = require('./config/db');
 const patientRoutes = require('./routes/patients');
 const doctorRoutes = require('./routes/doctors');
 const appointmentRoutes = require('./routes/appointments');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/api/patients', patientRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Database Connection Test and Server Start
 const PORT = process.env.PORT || 5000;
