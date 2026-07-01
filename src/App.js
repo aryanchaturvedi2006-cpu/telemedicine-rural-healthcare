@@ -15,6 +15,7 @@ import PatientLogin from './pages/PatientLogin';
 import EmergencySOS from './pages/EmergencySOS';
 import GovtSchemes from './pages/GovtSchemes';
 import LoginPage from './pages/LoginPage';
+import VideoCallRoom from './pages/VideoCallRoom';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
             <Route path="/patient-login" element={<PatientLogin />} />
             <Route path="/doctor-login" element={<LoginPage />} />
+            <Route path="/video-call/:id" element={<VideoCallRoom />} />
           </Routes>
         </Router>
       </LanguageProvider>

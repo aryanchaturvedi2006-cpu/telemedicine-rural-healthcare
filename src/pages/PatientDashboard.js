@@ -267,6 +267,42 @@ const PatientDashboard = () => {
     nm: 'Thik najdik doctor laagi location on koro'
   };
 
+  const SCHEDULED_TIME_MSG = {
+    hi: 'डॉक्टर ने वीडियो कॉल का समय तय किया है: ',
+    en: 'Doctor has scheduled a video call at: ',
+    gu: 'ડૉક્ટરે વીડિયો કૉલનો સમય નક્કી કર્યો છે: ',
+    mr: 'डॉक्टरांनी व्हिडिओ कॉलची वेळ ठरवली आहे: ',
+    ta: 'மருத்துவர் வீடியோ அழைப்பை திட்டமிட்டுள்ளார்: ',
+    te: 'డాక్టర్ వీడియో కాల్ సమయం నిర్ణయించారు: ',
+    pa: 'ਡਾਕਟਰ ਨੇ ਵੀਡੀਓ ਕਾਲ ਦਾ ਸਮਾਂ ਤੈਅ ਕੀਤਾ ਹੈ: ',
+    bn: 'ডাক্তার ভিডিও কলের সময় নির্ধারণ করেছেন: ',
+    kn: 'ವೈದ್ಯರು ವೀಡಿಯೊ ಕರೆ ಸಮಯವನ್ನು ನಿಗದಿಪಡಿಸಿದ್ದಾರೆ: ',
+    ml: 'ഡോക്ടർ വീഡിയോ കോൾ സമയം നിശ്ചയിച്ചു: ',
+    mw: 'डॉक्टर वीडियो कॉल रो टेम राख्यो है: ',
+    as: 'ডাক্তাৰে ভিডিঅ\' কলৰ সময় নিৰ্ধাৰণ কৰিছে: ',
+    or: 'ଡାକ୍ତର ଭିଡିଓ କଲ୍ ସମୟ ସ୍ଥିର କରିଛନ୍ତି: ',
+    nm: 'Doctor video call scheduled korise: '
+  };
+
+  const INCOMING_CALL_MSG = {
+    hi: 'वीडियो कॉल आ रही है...',
+    en: 'Incoming Video Call...',
+    gu: 'વીડિયો કૉલ આવી રહ્યો છે...',
+    mr: 'व्हिडिओ कॉल येत आहे...',
+    ta: 'வீடியோ அழைப்பு வருகிறது...',
+    te: 'వీడియో కాల్ వస్తోంది...',
+    pa: 'ਵੀਡੀਓ ਕਾਲ ਆ ਰਹੀ ਹੈ...',
+    bn: 'ভিডিও কল আসছে...',
+    kn: 'ವೀಡಿಯೊ ಕರೆ ಬರುತ್ತಿದೆ...',
+    ml: 'വീഡിയോ കോൾ വരുന്നു...',
+    mw: 'वीडियो कॉल आवे है...',
+    as: 'ভিডিঅ\' কল আহি আছে...',
+    or: 'ଭିଡିଓ କଲ୍ ଆସୁଛି...',
+    nm: 'Video call ahise...'
+  };
+
+  const [incomingCall, setIncomingCall] = useState(null);
+
   const toggleListening = () => {
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
       alert('Aapka browser voice input support nahi karta. Chrome use karein.');
@@ -405,7 +441,16 @@ const PatientDashboard = () => {
       if (!patientId || patientId === 'local-temp-id') { setApptLoading(false); return; }
       try {
         const res = await fetch(`${API_BASE_URL}/api/appointments/patient/${patientId}`);
-        if (res.ok) { const data = await res.json(); setAppointments(data.data || []); } else { setAppointments([]); }
+        if (res.ok) { 
+          const data = await res.json(); 
+          setAppointments(data.data || []); 
+          const ringingAppt = (data.data || []).find(a => a.status === 'confirmed' && a.call_started && (a.mode === 'Video Call' || a.mode === 'video') && !sessionStorage.getItem(`call_answered_${a.id}`));
+          if (ringingAppt) {
+            setIncomingCall(ringingAppt);
+          } else {
+            setIncomingCall(null);
+          }
+        } else { setAppointments([]); }
       } catch (err) { console.error('Error fetching appointments:', err); setAppointments([]); }
       finally { setApptLoading(false); }
     };
@@ -448,7 +493,10 @@ const PatientDashboard = () => {
         setBookSuccess(t('consultationRequestSent') || 'Appointment booked successfully!');
         setBookForm({ doctor_id:'',mode:'video',symptoms:'',symptom_audio:'',injury_photo:'' });
         const apptRes = await fetch(`${API_BASE_URL}/api/appointments/patient/${patientId}`);
-        if (apptRes.ok) { const apptData = await apptRes.json(); setAppointments(apptData.data || []); }
+        if (apptRes.ok) { 
+          const apptData = await apptRes.json(); 
+          setAppointments(apptData.data || []); 
+        }
         
         setTimeout(() => {
           setShowModal(false);
@@ -624,10 +672,21 @@ const PatientDashboard = () => {
                 <p><strong>Mode:</strong> {appt.mode}</p>
                 <p><strong>Symptoms:</strong> {appt.symptoms}</p>
                 <p><strong>Status:</strong> <span style={{ textTransform:'capitalize', fontWeight:600 }}>{appt.status}</span></p>
-                {appt.status === 'confirmed' && appt.mode === 'Video Call' && (
+                {appt.scheduled_time && (
+                  <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#E3F2FD', borderRadius: '8px', border: '1px solid #90CAF9' }}>
+                    <p style={{ margin: 0, color: '#1565C0', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '18px', marginRight: '8px' }}>⏰</span>
+                      {SCHEDULED_TIME_MSG[language] || SCHEDULED_TIME_MSG.en} {appt.scheduled_time}
+                    </p>
+                  </div>
+                )}
+                {appt.status === 'confirmed' && (appt.mode === 'Video Call' || appt.mode === 'video') && (
                   <div style={{ marginTop: '12px' }}>
                     <button 
-                      onClick={() => navigate(`/video-call/appointment-${appt.id}`)}
+                      onClick={() => {
+                        sessionStorage.setItem(`call_answered_${appt.id}`, 'true');
+                        navigate(`/video-call/appointment-${appt.id}`);
+                      }}
                       disabled={!appt.call_started}
                       style={{
                         padding: '10px 16px',
@@ -711,6 +770,39 @@ const PatientDashboard = () => {
       </div>
 
       {/* ── FLOATING SYMPTOM CHECKER BUTTON REMOVED (now a banner) ── */}
+
+      {/* ── INCOMING CALL MODAL ── */}
+      {incomingCall && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#fff', borderRadius: '24px', padding: '40px 32px', width: '90%', maxWidth: '400px', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', animation: 'pulse-recording-banner 2s infinite' }}>
+            <div style={{ fontSize: '64px', marginBottom: '16px', animation: 'aarogyaPulse 1.5s infinite' }}>📞</div>
+            <h2 style={{ fontSize: '24px', color: '#1A1A1A', marginBottom: '8px', fontWeight: 'bold' }}>Dr. {incomingCall.doctor_name}</h2>
+            <p style={{ fontSize: '18px', color: '#16a34a', fontWeight: 'bold', marginBottom: '32px' }}>
+              {INCOMING_CALL_MSG[language] || INCOMING_CALL_MSG.en}
+            </p>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+              <button 
+                onClick={() => {
+                  sessionStorage.setItem(`call_answered_${incomingCall.id}`, 'true');
+                  setIncomingCall(null);
+                }}
+                style={{ flex: 1, backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '32px', height: '56px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}
+              >
+                Decline
+              </button>
+              <button 
+                onClick={() => {
+                  sessionStorage.setItem(`call_answered_${incomingCall.id}`, 'true');
+                  navigate(`/video-call/appointment-${incomingCall.id}`);
+                }}
+                style={{ flex: 1, backgroundColor: '#22c55e', color: '#fff', border: 'none', borderRadius: '32px', height: '56px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 8px 16px rgba(34, 197, 94, 0.4)' }}
+              >
+                Answer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── SYMPTOM CHECKER FULL-SCREEN MODAL ── */}
       {showSymptomModal && (

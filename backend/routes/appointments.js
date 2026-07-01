@@ -48,15 +48,18 @@ router.get('/patient/:patientId', async (req, res) => {
 router.get('/doctor/:doctorId', async (req, res) => {
   try {
     const { doctorId } = req.params;
+    console.log(`[API] Fetching appointments for doctorId: ${doctorId} (type: ${typeof doctorId})`);
 
-    const [appointments] = await pool.query(
-      `SELECT a.*, p.name as patient_name, p.age, p.gender, p.mobile 
+    const sql = `SELECT a.*, COALESCE(p.name, 'Unknown Patient') as patient_name, p.age, p.gender, p.mobile 
        FROM appointments a 
-       JOIN patients p ON a.patient_id = p.id 
+       LEFT JOIN patients p ON a.patient_id = p.id 
        WHERE a.doctor_id = ? 
-       ORDER BY a.created_at DESC`,
-      [doctorId]
-    );
+       ORDER BY a.created_at DESC`;
+    
+    console.log(`[API] Query: ${sql}`);
+
+    const [appointments] = await pool.query(sql, [doctorId]);
+    console.log(`[API] Found ${appointments.length} appointments`);
 
     res.status(200).json({ success: true, data: appointments });
   } catch (error) {
@@ -69,16 +72,24 @@ router.get('/doctor/:doctorId', async (req, res) => {
 router.patch('/:id/status', async (req, res) => {
   try {
     const appointmentId = req.params.id;
-    const { status } = req.body; // pending, confirmed, cancelled
+    const { status, scheduled_time } = req.body; // pending, confirmed, cancelled
 
     if (!['pending', 'confirmed', 'cancelled'].includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid status' });
     }
 
-    const [result] = await pool.query(
-      'UPDATE appointments SET status = ? WHERE id = ?',
-      [status, appointmentId]
-    );
+    let result;
+    if (status === 'confirmed' && scheduled_time) {
+      [result] = await pool.query(
+        'UPDATE appointments SET status = ?, scheduled_time = ? WHERE id = ?',
+        [status, scheduled_time, appointmentId]
+      );
+    } else {
+      [result] = await pool.query(
+        'UPDATE appointments SET status = ? WHERE id = ?',
+        [status, appointmentId]
+      );
+    }
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ success: false, message: 'Appointment not found' });

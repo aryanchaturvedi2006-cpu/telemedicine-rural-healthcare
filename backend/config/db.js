@@ -42,7 +42,9 @@ let dbPromise = open({
       symptom_audio TEXT,
       injury_photo TEXT,
       status TEXT DEFAULT 'pending',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      call_started BOOLEAN DEFAULT 0,
+      scheduled_time TEXT
     );
   `);
   
@@ -52,6 +54,12 @@ let dbPromise = open({
   } catch (err) {
     // Ignored: column likely already exists
   }
+  try {
+    await db.exec('ALTER TABLE appointments ADD COLUMN scheduled_time TEXT;');
+  } catch (err) {}
+  try {
+    await db.exec('ALTER TABLE appointments ADD COLUMN call_started BOOLEAN DEFAULT 0;');
+  } catch (err) {}
   try {
     await db.exec('ALTER TABLE appointments ADD COLUMN symptom_audio TEXT;');
   } catch (err) {

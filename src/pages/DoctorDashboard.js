@@ -31,6 +31,11 @@ const DoctorDashboard = () => {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  // Schedule modal state
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [selectedApptId, setSelectedApptId] = useState(null);
+  const [scheduledTime, setScheduledTime] = useState('');
+
   const LOCATION_BANNER_LABEL = {
     hi: "मरीजों को सटीक दूरी दिखाने के लिए लोकेशन जोड़ें",
     en: "Add location to show patients accurate distance",
@@ -114,6 +119,8 @@ const DoctorDashboard = () => {
       }
     };
     fetchAppointments();
+    const interval = setInterval(fetchAppointments, 5000);
+    return () => clearInterval(interval);
   }, [doctorId]);
 
   const handleToggleAvailability = async () => {
@@ -138,12 +145,16 @@ const DoctorDashboard = () => {
     }
   };
 
-  const handleStatusUpdate = async (appointmentId, status) => {
+  const handleStatusUpdate = async (appointmentId, status, schedTime = null) => {
     try {
+      const payload = { status };
+      if (schedTime) {
+        payload.scheduled_time = schedTime;
+      }
       const res = await fetch(`${API_BASE_URL}/api/appointments/${appointmentId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         const apptRes = await fetch(`${API_BASE_URL}/api/appointments/doctor/${doctorId}`);
@@ -154,7 +165,18 @@ const DoctorDashboard = () => {
       }
     } catch (err) {
       console.error('Error updating status:', err);
+    } finally {
+      if (showScheduleModal) {
+        setShowScheduleModal(false);
+        setSelectedApptId(null);
+        setScheduledTime('');
+      }
     }
+  };
+
+  const handleOpenScheduleModal = (appointmentId) => {
+    setSelectedApptId(appointmentId);
+    setShowScheduleModal(true);
   };
 
   const handleStartCall = async (appointmentId) => {
@@ -376,7 +398,7 @@ const DoctorDashboard = () => {
         {/* Availability Card */}
         <div style={availabilityCardStyle}>
           <div>
-            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>🟢 Availability</div>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>{t('availability') || '🟢 Availability'}</div>
             {isAvailable ? (
               <div style={{ color: '#2E7D32', fontSize: '14px', fontWeight: 'bold' }}>Available for consultations</div>
             ) : (
@@ -401,7 +423,7 @@ const DoctorDashboard = () => {
 
         {/* New Patient Requests Section */}
         <div>
-          <h2 style={sectionHeadingStyle}>🔔 New Patient Requests</h2>
+          <h2 style={sectionHeadingStyle}>{t('newPatientRequests') || '🔔 New Patient Requests'}</h2>
           {apptError && (
             <div style={{ backgroundColor: '#FFEBEE', borderLeft: '4px solid #C62828', color: '#C62828', padding: '12px 16px', borderRadius: '8px', fontSize: '14px', marginBottom: '16px' }}>
               <strong>Error loading appointments:</strong> {apptError}
@@ -412,7 +434,7 @@ const DoctorDashboard = () => {
           ) : pendingAppts.length > 0 ? (
             pendingAppts.map((appt) => (
               <div key={appt.id} style={{ ...cardBaseStyle, marginBottom: '16px' }}>
-                <p style={{ margin: '0 0 8px 0', fontSize: '15px' }}><strong>Patient:</strong> {appt.patient_name}</p>
+                <p style={{ margin: '0 0 8px 0', fontSize: '15px' }}><strong>{t('patient') || 'Patient'}:</strong> {appt.patient_name}</p>
                 <p style={{ margin: '0 0 8px 0', fontSize: '15px' }}><strong>Age / Gender:</strong> {appt.age} / {appt.gender}</p>
                 <p style={{ margin: '0 0 8px 0', fontSize: '15px' }}><strong>Mobile:</strong> {appt.mobile}</p>
                 <p style={{ margin: '0 0 8px 0', fontSize: '15px' }}><strong>Date:</strong> {appt.date} at {appt.time}</p>
@@ -432,7 +454,7 @@ const DoctorDashboard = () => {
                 )}
                 
                 <div style={{ display: 'flex', gap: '12px' }}>
-                  <button onClick={() => handleStatusUpdate(appt.id, 'confirmed')}
+                  <button onClick={() => handleOpenScheduleModal(appt.id)}
                     style={{ flex: 1, height: '52px', backgroundColor: '#2E7D32', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
                   >
                     Accept
@@ -456,15 +478,20 @@ const DoctorDashboard = () => {
 
         {/* Today's Appointments Section */}
         <div>
-          <h2 style={sectionHeadingStyle}>📅 Today's Appointments</h2>
+          <h2 style={sectionHeadingStyle}>{t('todaysAppointments') || '📅 Today\'s Appointments'}</h2>
           {apptLoading ? (
             <p>Loading...</p>
           ) : confirmedAppts.length > 0 ? (
             confirmedAppts.map((appt) => (
               <div key={appt.id} style={{ ...cardBaseStyle, padding: '20px 24px', borderLeft: '4px solid #1565C0', marginBottom: '16px' }}>
-                <div style={{ fontSize: '15px', marginBottom: '8px' }}><strong>👤 Patient:</strong> {appt.patient_name}</div>
+                <div style={{ fontSize: '15px', marginBottom: '8px' }}><strong>👤 {t('patient') || 'Patient'}:</strong> {appt.patient_name}</div>
                 <div style={{ fontSize: '15px', marginBottom: '8px' }}><strong>📅 Date:</strong> {appt.date}</div>
                 <div style={{ fontSize: '15px', marginBottom: '12px' }}><strong>{getModeIcon(appt.mode)} Mode:</strong> {appt.mode}</div>
+                {appt.scheduled_time && (
+                  <div style={{ fontSize: '15px', marginBottom: '12px', color: '#1565C0', fontWeight: 'bold' }}>
+                    <strong>⏰ Scheduled Time:</strong> {appt.scheduled_time}
+                  </div>
+                )}
                 {appt.symptom_audio && (
                   <div style={{ marginBottom: '12px' }}>
                     <audio controls src={appt.symptom_audio} style={{ width: '100%', height: '32px' }} />
@@ -494,7 +521,7 @@ const DoctorDashboard = () => {
 
         {/* My Patients Section */}
         <div>
-          <h2 style={sectionHeadingStyle}>👥 My Patients</h2>
+          <h2 style={sectionHeadingStyle}>{t('myPatients') || '👥 My Patients'}</h2>
           <div style={{ ...emptyStateStyle, width: '100%' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>👤</div>
             <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#1A1A1A' }}>No patients yet</div>
@@ -554,6 +581,36 @@ const DoctorDashboard = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Schedule Modal */}
+      {showScheduleModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '16px' }}>
+          <div style={{ background: '#fff', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '420px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', boxSizing: 'border-box' }}>
+            <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: 'bold', color: '#1565C0' }}>
+              Schedule Video Call
+            </h2>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', color: '#333', marginBottom: '6px' }}>
+                Select Time
+              </label>
+              <input
+                type="time"
+                value={scheduledTime}
+                onChange={(e) => setScheduledTime(e.target.value)}
+                style={{ width: '100%', height: '48px', borderRadius: '10px', border: '1.5px solid #E0E0E0', padding: '12px 16px', fontSize: '15px', boxSizing: 'border-box', outline: 'none' }}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={() => handleStatusUpdate(selectedApptId, 'confirmed', scheduledTime)} disabled={!scheduledTime} style={{ flex: 1, height: '52px', backgroundColor: '#2E7D32', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', opacity: !scheduledTime ? 0.7 : 1 }}>
+                Confirm
+              </button>
+              <button onClick={() => { setShowScheduleModal(false); setSelectedApptId(null); setScheduledTime(''); }} style={{ flex: 1, height: '52px', backgroundColor: '#fff', color: '#6b7280', border: '1.5px solid #E0E0E0', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer' }}>
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
