@@ -35,6 +35,8 @@ const AdminDashboard = () => {
 
   // Analytics State
   const [analytics, setAnalytics] = useState(null);
+  const [rhsVacancies, setRhsVacancies] = useState([]);
+  const [rhsDensity, setRhsDensity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -43,6 +45,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchAnalytics();
+      fetchRhsData();
     }
   }, [isAuthenticated]);
 
@@ -84,6 +87,28 @@ const AdminDashboard = () => {
       setError('Network error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRhsData = async () => {
+    try {
+      // The AI service runs on port 5001
+      const vacRes = await fetch(`http://localhost:5001/api/stats/vacancies`);
+      if (vacRes.ok) {
+        const vacData = await vacRes.json();
+        // Top 10 states by Doctor Vacancy
+        const sortedVac = vacData.sort((a,b) => b.Doctors_Vacent - a.Doctors_Vacent).slice(0, 10);
+        setRhsVacancies(sortedVac); 
+      }
+      const denRes = await fetch(`http://localhost:5001/api/stats/density`);
+      if (denRes.ok) {
+        const denData = await denRes.json();
+        // Top 10 states by Rural Population Density
+        const sortedDen = denData.sort((a,b) => b.Rural_Population_Density - a.Rural_Population_Density).slice(0, 10);
+        setRhsDensity(sortedDen); 
+      }
+    } catch (err) {
+      console.error("Error fetching RHS stats:", err);
     }
   };
 
@@ -296,6 +321,41 @@ const AdminDashboard = () => {
                 <Bar dataKey="count" fill={THEME.primary} radius={[4, 4, 0, 0]} name="Appointments" barSize={50} />
               </BarChart>
             </ResponsiveContainer>
+          </ChartCard>
+
+          {/* RHS Vacancies Chart */}
+          <ChartCard title="Doctor Vacancies by State (RHS Data)" subtitle="Real data showing top 10 states with highest doctor shortages in PHCs">
+            <div style={{ width: '100%', height: 300 }}>
+              {rhsVacancies && rhsVacancies.length > 0 ? (
+                <BarChart width={500} height={300} data={rhsVacancies} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E0E0E0" />
+                  <XAxis dataKey="State/UT" axisLine={false} tickLine={false} tick={{fill: THEME.textLight, fontSize: 10}} interval={0} angle={-45} textAnchor="end" />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: THEME.textLight}} />
+                  <Tooltip cursor={{fill: THEME.background}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                  <Bar dataKey="Doctors_Vacent" fill="#D32F2F" radius={[4, 4, 0, 0]} name="Vacant Doctors" barSize={30} />
+                  <Bar dataKey="NursingStaff_Vacent" fill="#F57C00" radius={[4, 4, 0, 0]} name="Vacant Nurses" barSize={30} />
+                </BarChart>
+              ) : (
+                <EmptyState message="Loading RHS Vacancy Data..." />
+              )}
+            </div>
+          </ChartCard>
+
+          {/* RHS Density Chart */}
+          <ChartCard title="Rural Population Density (RHS Data)" subtitle="Top 10 most densely populated rural areas">
+            <div style={{ width: '100%', height: 300 }}>
+              {rhsDensity && rhsDensity.length > 0 ? (
+                <BarChart width={500} height={300} data={rhsDensity} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E0E0E0" />
+                  <XAxis dataKey="State/UT" axisLine={false} tickLine={false} tick={{fill: THEME.textLight, fontSize: 10}} interval={0} angle={-45} textAnchor="end" />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: THEME.textLight}} />
+                  <Tooltip cursor={{fill: THEME.background}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                  <Bar dataKey="Rural_Population_Density" fill="#388E3C" radius={[4, 4, 0, 0]} name="Density (per sq km)" barSize={40} />
+                </BarChart>
+              ) : (
+                <EmptyState message="Loading RHS Density Data..." />
+              )}
+            </div>
           </ChartCard>
 
           {/* Gender Distribution Pie Chart */}

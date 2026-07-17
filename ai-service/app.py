@@ -1,6 +1,7 @@
 import os
 import pickle
 import numpy as np
+import pandas as pd
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from translations import get_translation
@@ -8,30 +9,23 @@ from translations import get_translation
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:3001"]}})
 
-# Load Model and data
+# Load Model
 try:
     with open('model.pkl', 'rb') as f:
         clf = pickle.load(f)
     with open('symptoms.pkl', 'rb') as f:
         all_symptoms = pickle.load(f)
-    with open('description.pkl', 'rb') as f:
-        description_dict = pickle.load(f)
-    with open('precautions.pkl', 'rb') as f:
-        precautions_dict = pickle.load(f)
-    print("All models and data loaded successfully!")
 except Exception as e:
     print("Error loading models:", e)
     clf = None
     all_symptoms = []
-    description_dict = {}
-    precautions_dict = {}
 
 # Load Keywords
 keywords_dicts = {}
 lang_map = {
-    'hi': 'hindi', 'gu': 'gujarati', 'mr': 'marathi', 'ta': 'tamil',
-    'te': 'telugu', 'pa': 'punjabi', 'bn': 'bengali', 'kn': 'kannada',
-    'ml': 'malayalam', 'mw': 'hindi', 'as': 'assamese', 'or': 'odia',
+    'hi': 'hindi', 'gu': 'gujarati', 'mr': 'marathi', 'ta': 'tamil', 
+    'te': 'telugu', 'pa': 'punjabi', 'bn': 'bengali', 'kn': 'kannada', 
+    'ml': 'malayalam', 'mw': 'hindi', 'as': 'assamese', 'or': 'odia', 
     'nm': 'nagamese', 'en': 'english'
 }
 
@@ -43,193 +37,78 @@ for code, name in lang_map.items():
         print(f"Failed to load keywords for {name}: {e}")
         keywords_dicts[code] = {}
 
-# Severity mapping based on disease type
-def get_severity(disease):
-    severe = ['Heart attack', 'Paralysis (brain hemorrhage)', 'AIDS', 'Tuberculosis',
-              'Hepatitis B', 'Hepatitis C', 'Hepatitis D', 'Hepatitis E', 'Dengue',
-              'Malaria', 'Pneumonia', 'Alcoholic hepatitis']
-    moderate = ['Typhoid', 'Jaundice', 'hepatitis A', 'Diabetes ', 'Hypertension ',
-                'Hypoglycemia', 'Hypothyroidism', 'Hyperthyroidism', 'Migraine',
-                'Bronchial Asthma', 'Gastroenteritis', 'Chicken pox', 'Psoriasis']
-    emergency = ['Heart attack', 'Paralysis (brain hemorrhage)', 'Dengue', 'AIDS']
-
-    d = disease.strip()
-    if d in severe:
-        return "severe"
-    elif d in moderate:
-        return "moderate"
-    else:
-        return "mild"
-
-def get_specialization(disease):
-    specialization_map = {
-        'Heart attack': 'Cardiology',
-        'Hypertension ': 'Cardiology',
-        'Diabetes ': 'Endocrinology',
-        'Hypothyroidism': 'Endocrinology',
-        'Hyperthyroidism': 'Endocrinology',
-        'Bronchial Asthma': 'Pulmonology',
-        'Tuberculosis': 'Pulmonology',
-        'Pneumonia': 'Pulmonology',
-        'Paralysis (brain hemorrhage)': 'Neurology',
-        'Migraine': 'Neurology',
-        'Cervical spondylosis': 'Orthopedics',
-        'Osteoarthristis': 'Orthopedics',
-        'Arthritis': 'Orthopedics',
-        'Jaundice': 'Gastroenterology',
-        'hepatitis A': 'Gastroenterology',
-        'Hepatitis B': 'Gastroenterology',
-        'Hepatitis C': 'Gastroenterology',
-        'Hepatitis D': 'Gastroenterology',
-        'Hepatitis E': 'Gastroenterology',
-        'Alcoholic hepatitis': 'Gastroenterology',
-        'Gastroenteritis': 'Gastroenterology',
-        'GERD': 'Gastroenterology',
-        'Peptic ulcer diseae': 'Gastroenterology',
-        'Chronic cholestasis': 'Gastroenterology',
-        'Urinary tract infection': 'Urology',
-        'AIDS': 'Infectious Disease',
-        'Malaria': 'Infectious Disease',
-        'Dengue': 'Infectious Disease',
-        'Typhoid': 'Infectious Disease',
-        'Chicken pox': 'Infectious Disease',
-        'Fungal infection': 'Dermatology',
-        'Acne': 'Dermatology',
-        'Psoriasis': 'Dermatology',
-        'Impetigo': 'Dermatology',
-    }
-    return specialization_map.get(disease.strip(), 'General Medicine')
-
-def is_emergency(disease):
-    emergency_diseases = ['Heart attack', 'Paralysis (brain hemorrhage)', 'Dengue', 'AIDS']
-    return disease.strip() in emergency_diseases
-
-def get_see_doctor(severity):
-    if severity == 'severe':
-        return 'today urgently'
-    elif severity == 'moderate':
-        return 'within 2 days'
-    else:
-        return 'if symptoms persist'
+# Load Disease Properties from CSV
+disease_properties = {}
+try:
+    desc_df = pd.read_csv('data/symptom_Description.csv')
+    for _, row in desc_df.iterrows():
+        disease = str(row['Disease']).strip()
+        disease_properties[disease] = {
+            "description": str(row['Description']).strip(),
+            "home_remedies": [],
+            "severity": "moderate",
+            "specialization": "General Medicine",
+            "see_doctor": "within 2 days",
+            "emergency": False
+        }
+        
+    prec_df = pd.read_csv('data/symptom_precaution.csv')
+    for _, row in prec_df.iterrows():
+        disease = str(row['Disease']).strip()
+        precs = [str(row[c]).strip() for c in ['Precaution_1', 'Precaution_2', 'Precaution_3', 'Precaution_4'] if pd.notna(row[c])]
+        if disease in disease_properties:
+            disease_properties[disease]["home_remedies"] = precs
+        else:
+            disease_properties[disease] = {
+                "description": "",
+                "home_remedies": precs,
+                "severity": "moderate",
+                "specialization": "General Medicine",
+                "see_doctor": "within 2 days",
+                "emergency": False
+            }
+except Exception as e:
+    print("Error loading CSV properties:", e)
 
 @app.route('/api/symptoms/analyze', methods=['POST'])
 def analyze():
     data = request.json
     symptoms = data.get('symptoms', [])
     lang = data.get('language', 'en')
-
-    print("SYMPTOMS:", symptoms)
-    print("CLF:", clf)
+    
     if not symptoms or not clf:
         return jsonify({"error": "Invalid symptoms or model not loaded"}), 400
-
-    symptoms_clean = [s.strip() for s in symptoms]
-
-    matched = [s for s in symptoms_clean if s in all_symptoms]
-    unmatched = [s for s in symptoms_clean if s not in all_symptoms]
-    print(f"MATCHED symptoms ({len(matched)}/{len(symptoms_clean)}): {matched}")
-    print(f"UNMATCHED symptoms (not in model's 133 list): {unmatched}")
-
-    if len(symptoms_clean) < 4:
-        return jsonify({
-            "low_confidence": True,
-            "message": get_translation(lang, 'lowConfidenceMsg') or "Kripya kam se kam 4 lakshan chunen.",
-            "possible_conditions": [],
-            "recommended_specialization": "General Medicine",
-            "see_doctor": True,
-            "emergency": False
-        }), 200
-
-    vector = [1 if sym in symptoms_clean else 0 for sym in all_symptoms]
-    probs = clf.predict_proba([vector])[0]
-    
-    # Get top 5 just in case rules disqualify some
-    top_indices = np.argsort(probs)[::-1][:5]
-    
-    # -------------------------------------------------------------------
-    # MEDICAL RULE ENGINE (Phase 1)
-    # Filter predictions based on strict rules
-    # -------------------------------------------------------------------
-    valid_diseases = []
-    for idx in top_indices:
-        disease = str(clf.classes_[idx])
-        prob = float(probs[idx])
-        is_valid = True
         
-        # Rule 1: Heart attack requires chest_pain and (sweating or breathlessness)
-        if disease == 'Heart attack':
-            if 'chest_pain' not in symptoms_clean or ('sweating' not in symptoms_clean and 'breathlessness' not in symptoms_clean):
-                is_valid = False
-                
-        # Rule 2: Paralysis requires weakness_of_one_body_side or altered_sensorium
-        elif disease == 'Paralysis (brain hemorrhage)':
-            if 'weakness_of_one_body_side' not in symptoms_clean and 'altered_sensorium' not in symptoms_clean:
-                is_valid = False
-                
-        # Rule 3: AIDS requires muscle_wasting or extra_marital_contacts or patches_in_throat
-        elif disease == 'AIDS':
-            if 'muscle_wasting' not in symptoms_clean and 'extra_marital_contacts' not in symptoms_clean and 'patches_in_throat' not in symptoms_clean:
-                is_valid = False
-
-        if is_valid:
-            valid_diseases.append((disease, prob))
-
-    # If all top diseases were filtered out, fallback to original top
-    if not valid_diseases:
-        valid_diseases = [(str(clf.classes_[idx]), float(probs[idx])) for idx in top_indices[:3]]
-
-    # Take the top 3 valid diseases
-    top_3 = valid_diseases[:3]
+    vector = [1 if sym in symptoms else 0 for sym in all_symptoms]
+    prob = clf.predict_proba([vector])[0]
+    pred_idx = np.argmax(prob)
+    pred_disease = clf.classes_[pred_idx]
+    confidence = float(prob[pred_idx])
     
-    # -------------------------------------------------------------------
-    # PROBABILITY NORMALIZATION (Solves the "Low Confidence" Issue)
-    # Random Forest spreads probabilities. We normalize the top 3 to sum to 1.
-    # -------------------------------------------------------------------
-    sum_probs = sum([p for d, p in top_3])
-    if sum_probs > 0:
-        normalized_top_3 = [(d, p / sum_probs) for d, p in top_3]
-    else:
-        normalized_top_3 = top_3
-        
-    pred_disease, confidence = normalized_top_3[0]
+    props = disease_properties.get(pred_disease, {
+        "description": "No description available.",
+        "severity": "moderate", 
+        "specialization": "General Medicine", 
+        "home_remedies": ["Rest", "Consult a doctor"], 
+        "see_doctor": "within 2 days", 
+        "emergency": False
+    })
     
-    # Format alternative diseases with percentages for the frontend
-    alternative_diseases = []
-    for d, c in normalized_top_3[1:]:
-        alternative_diseases.append({
-            "name": d,
-            "confidence": round(c, 2)
-        })
-
-    severity = get_severity(pred_disease)
-    specialization = get_specialization(pred_disease)
-    emergency = is_emergency(pred_disease)
-    see_doctor = get_see_doctor(severity)
-
-    disease_key = pred_disease.strip()
-    description_en = description_dict.get(disease_key, "Please consult a doctor for proper diagnosis.")
-    description = get_translation(lang, description_en)
-    precautions = precautions_dict.get(disease_key, ["Rest", "Stay hydrated", "Consult a doctor"])
-
     result = {
         "predicted_disease": pred_disease,
         "predicted_disease_translated": get_translation(lang, pred_disease),
         "confidence": round(confidence, 2),
-        "low_confidence_warning": confidence < 0.65,
-        "severity": severity,
-        "severity_translated": get_translation(lang, severity),
-        "recommended_specialization": specialization,
-        "recommended_specialization_translated": get_translation(lang, specialization),
-        "description": description,
-        "precautions": precautions,
-        "precautions_translated": [get_translation(lang, p) for p in precautions],
-        "home_remedies": precautions,
-        "home_remedies_translated": [get_translation(lang, p) for p in precautions],
-        "see_doctor": see_doctor,
-        "see_doctor_translated": get_translation(lang, see_doctor),
-        "emergency": emergency,
-        "alternative_diseases": alternative_diseases,
-        "alternative_diseases_translated": [{"name": get_translation(lang, d['name']), "confidence": d['confidence']} for d in alternative_diseases]
+        "description": props.get('description', ''),
+        "description_translated": get_translation(lang, props.get('description', '')),
+        "severity": props['severity'],
+        "severity_translated": get_translation(lang, props['severity']),
+        "recommended_specialization": props['specialization'],
+        "recommended_specialization_translated": get_translation(lang, props['specialization']),
+        "home_remedies": props['home_remedies'],
+        "home_remedies_translated": [get_translation(lang, hr) for hr in props['home_remedies']],
+        "see_doctor": props['see_doctor'],
+        "see_doctor_translated": get_translation(lang, props['see_doctor']),
+        "emergency": props['emergency']
     }
     return jsonify(result)
 
@@ -244,19 +123,40 @@ def from_text():
     data = request.json
     text = data.get('text', '').lower()
     lang = data.get('language', 'en')
-
+    
     kmap = keywords_dicts.get(lang, keywords_dicts.get('en', {}))
-
+    
     matched = set()
     for phrase, sym in kmap.items():
         if phrase in text:
             matched.add(sym)
-
+            
     return jsonify({"symptoms": list(matched)})
 
-@app.route('/api/health', methods=['GET'])
-def health():
-    return jsonify({"status": "ok", "model_loaded": clf is not None})
+# --- Rural Health Statistics Endpoints ---
+@app.route('/api/stats/vacancies', methods=['GET'])
+def get_vacancies():
+    try:
+        df = pd.read_csv('data/rhs_2020_vacancies_shortfalls.csv')
+        df = df.replace('*', 0).replace('NA', 0).fillna(0)
+        # Convert numeric columns to int/float if possible
+        for col in df.columns[1:]:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
+        return jsonify(df.to_dict(orient='records'))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/stats/density', methods=['GET'])
+def get_density():
+    try:
+        df = pd.read_csv('data/rhs_population_density.csv')
+        df = df.replace('NA', 0).fillna(0)
+        df['State/UT'] = df['State/UT'].astype(str).str.replace('*', '', regex=False)
+        for col in df.columns[1:]:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+        return jsonify(df.to_dict(orient='records'))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(port=5001, debug=True)

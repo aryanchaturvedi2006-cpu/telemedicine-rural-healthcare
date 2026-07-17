@@ -71,13 +71,7 @@ let dbPromise = open({
       symptom_audio TEXT,
       injury_photo TEXT,
       status TEXT DEFAULT 'pending',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      call_started BOOLEAN DEFAULT 0,
-      scheduled_time TEXT,
-      patient_message_audio TEXT,
-      prescription_text TEXT,
-      medicines TEXT,
-      prescription_image TEXT
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
   
@@ -88,35 +82,7 @@ let dbPromise = open({
     // Ignored: column likely already exists
   }
   try {
-    await db.exec('ALTER TABLE appointments ADD COLUMN scheduled_time TEXT;');
-  } catch (err) {}
-  try {
-    await db.exec('ALTER TABLE appointments ADD COLUMN patient_message_audio TEXT;');
-  } catch (err) {}
-  try {
-    await db.exec('ALTER TABLE appointments ADD COLUMN call_started BOOLEAN DEFAULT 0;');
-  } catch (err) {}
-  try {
-    await db.exec('ALTER TABLE appointments ADD COLUMN prescription_text TEXT;');
-  } catch (err) {}
-  try {
-    await db.exec('ALTER TABLE appointments ADD COLUMN medicines TEXT;');
-  } catch (err) {}
-  try {
     await db.exec('ALTER TABLE appointments ADD COLUMN symptom_audio TEXT;');
-  } catch (err) {
-    // Ignored: column likely already exists
-  }
-  try {
-    await db.exec('ALTER TABLE appointments ADD COLUMN prescription_image TEXT;');
-  } catch (err) {}
-  try {
-    await db.exec('ALTER TABLE doctors ADD COLUMN latitude REAL;');
-  } catch (err) {
-    // Ignored: column likely already exists
-  }
-  try {
-    await db.exec('ALTER TABLE doctors ADD COLUMN longitude REAL;');
   } catch (err) {
     // Ignored: column likely already exists
   }

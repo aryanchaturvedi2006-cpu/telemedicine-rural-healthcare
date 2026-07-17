@@ -10,8 +10,6 @@ const AarogyaModal = ({ onClose }) => {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [speakingMessageId, setSpeakingMessageId] = useState(null);
   const chatRef = useRef(null);
   const recognitionRef = useRef(null);
 
@@ -38,67 +36,6 @@ const AarogyaModal = ({ onClose }) => {
     ml: '🎤 കേൾക്കുന്നു... സംസാരിക്കൂ', mw: '🎤 सुण रियो हूँ... बोलो',
     as: '🎤 শুনি আছোঁ... কওক', or: '🎤 ଶୁଣୁଛି... କୁହନ୍ତୁ', nm: '🎤 Suni ase... kotha kow'
   };
-
-  const REPLAY_LABEL = {
-    hi: "🔊 दोबारा सुनें", en: "🔊 Listen again", gu: "🔊 ફરીથી સાંભળો",
-    mr: "🔊 पुन्हा ऐका", ta: "🔊 மீண்டும் கேளுங்கள்", te: "🔊 మళ్ళీ వినండి",
-    pa: "🔊 ਦੁਬਾਰਾ ਸੁਣੋ", bn: "🔊 আবার শুনুন", kn: "🔊 ಮತ್ತೆ ಕೇಳಿ",
-    ml: "🔊 വീണ്ടും കേൾക്കൂ", mw: "🔊 दोबारा सुणो", as: "🔊 পুনৰ শুনক",
-    or: "🔊 ପୁଣି ଶୁଣନ୍ତୁ", nm: "🔊 Dobara suno"
-  };
-
-  const STOP_LABEL = {
-    hi: "⏹ रोकें", en: "⏹ Stop", gu: "⏹ રોકો", mr: "⏹ थांबा",
-    ta: "⏹ நிறுத்து", te: "⏹ ఆపండి", pa: "⏹ ਰੋਕੋ", bn: "⏹ থামুন",
-    kn: "⏹ ನಿಲ್ಲಿಸಿ", ml: "⏹ നിർത്തൂ", mw: "⏹ रोको", as: "⏹ ৰওক",
-    or: "⏹ ବନ୍ଦ କରନ୍ତୁ", nm: "⏹ Roko"
-  };
-
-  const MUTE_LABEL = {
-    hi: "🔇 आवाज़ बंद", en: "🔇 Mute", gu: "🔇 મ્યૂટ", mr: "🔇 म्यूट",
-    ta: "🔇 ஒலியடக்கு", te: "🔇 మ్యూట్", pa: "🔇 ਮਿਊਟ", bn: "🔇 মিউট",
-    kn: "🔇 ಮ್ಯೂಟ್", ml: "🔇 മ്യൂട്ട്", mw: "🔇 आवाज़ बंद", as: "🔇 মিউট",
-    or: "🔇 ମ୍ୟୁଟ୍", nm: "🔇 Mute"
-  };
-
-  const UNMUTE_LABEL = {
-    hi: "🔊 आवाज़ चालू", en: "🔊 Unmute", gu: "🔊 અનમ્યૂટ", mr: "🔊 अनम्यूट",
-    ta: "🔊 ஒலியெழுப்பு", te: "🔊 అన్‌మ్యూట్", pa: "🔊 ਅਨਮਿਊਟ", bn: "🔊 আনমিউট",
-    kn: "🔊 ಅನ್‌ಮ್ಯೂಟ್", ml: "🔊 അൺമ്യൂട്ട്", mw: "🔊 आवाज़ चालू", as: "🔊 আনমিউট",
-    or: "🔊 ଅନମ୍ୟୁଟ୍", nm: "🔊 Unmute"
-  };
-
-  const stopSpeaking = () => {
-    window.speechSynthesis.cancel();
-    setSpeakingMessageId(null);
-  };
-
-  const speakText = (text, messageId, autoPlay = false) => {
-    if (autoPlay && isMuted) return;
-    
-    stopSpeaking(); // Stop any ongoing speech
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    const TTS_LANG_MAP = {
-      hi: 'hi-IN', en: 'en-IN', gu: 'gu-IN', mr: 'mr-IN',
-      ta: 'ta-IN', te: 'te-IN', pa: 'pa-IN', bn: 'bn-IN',
-      kn: 'kn-IN', ml: 'ml-IN', mw: 'hi-IN', as: 'as-IN',
-      or: 'or-IN', nm: 'en-IN'
-    };
-    utterance.lang = TTS_LANG_MAP[language] || 'hi-IN';
-    
-    utterance.onstart = () => setSpeakingMessageId(messageId);
-    utterance.onend = () => setSpeakingMessageId(null);
-    utterance.onerror = () => setSpeakingMessageId(null);
-    
-    window.speechSynthesis.speak(utterance);
-  };
-
-  useEffect(() => {
-    return () => {
-      window.speechSynthesis.cancel();
-    };
-  }, []);
 
   const toggleListening = () => {
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
@@ -270,19 +207,14 @@ MEDICAL RULES:
       }
 
       const reply = data.candidates[0].content.parts[0].text;
-      const msgId = Date.now();
-      setMessages((prev) => [...prev, { id: msgId, role: 'ai', text: reply }]);
-      speakText(reply, msgId, true);
+      setMessages((prev) => [...prev, { id: Date.now(), role: 'ai', text: reply }]);
     } catch (error) {
       console.error("AI Error:", error);
-      const msgId = Date.now();
-      const errorText = `⚠️ Connection Error: ${error.message}. Please try again later or call 108 for emergencies.`;
       setMessages((prev) => [...prev, { 
-        id: msgId, 
+        id: Date.now(), 
         role: 'ai', 
-        text: errorText 
+        text: `⚠️ Connection Error: ${error.message}. Please try again later or call 108 for emergencies.` 
       }]);
-      speakText(errorText, msgId, true);
     } finally {
       setIsLoading(false);
     }
@@ -486,32 +418,16 @@ MEDICAL RULES:
           <div style={{ fontSize: '20px', fontWeight: 'bold' }}>🌿 Aarogya AI - Aapka Swasthya Saathi</div>
           <div style={{ fontSize: '13px', opacity: 0.9, marginTop: '4px' }}>Your 24/7 Health Assistant — Ask anything, anytime</div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button
-            onClick={() => {
-              const newMutedState = !isMuted;
-              setIsMuted(newMutedState);
-              if (newMutedState) stopSpeaking();
-            }}
-            style={{
-              background: 'rgba(255, 255, 255, 0.2)', border: 'none', color: '#fff', 
-              padding: '6px 12px', borderRadius: '16px', cursor: 'pointer', fontSize: '14px',
-              display: 'flex', alignItems: 'center'
-            }}
-          >
-            {isMuted ? (UNMUTE_LABEL[language] || UNMUTE_LABEL.en) : (MUTE_LABEL[language] || MUTE_LABEL.en)}
-          </button>
-          <button 
-            onClick={onClose} 
-            style={{
-              background: 'none', border: 'none', color: '#fff', fontSize: '32px', 
-              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
-            title="Close"
-          >
-            &times;
-          </button>
-        </div>
+        <button 
+          onClick={onClose} 
+          style={{
+            background: 'none', border: 'none', color: '#fff', fontSize: '32px', 
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+          title="Close"
+        >
+          &times;
+        </button>
       </div>
 
       {/* Chat Area */}
@@ -580,33 +496,6 @@ MEDICAL RULES:
               }}>
                 {msg.text}
               </div>
-              {msg.role === 'ai' && (
-                <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'flex-start' }}>
-                  {speakingMessageId === msg.id ? (
-                    <button
-                      onClick={stopSpeaking}
-                      style={{
-                        background: '#FFEBEE', border: '1px solid #FFCDD2', borderRadius: '16px',
-                        padding: '4px 12px', fontSize: '12px', cursor: 'pointer', color: '#D32F2F',
-                        display: 'flex', alignItems: 'center'
-                      }}
-                    >
-                      {STOP_LABEL[language] || STOP_LABEL.en}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => speakText(msg.text, msg.id, false)}
-                      style={{
-                        background: '#F8FBF8', border: '1px solid #C8E6C9', borderRadius: '16px',
-                        padding: '4px 12px', fontSize: '12px', cursor: 'pointer', color: '#2E7D32',
-                        display: 'flex', alignItems: 'center'
-                      }}
-                    >
-                      {REPLAY_LABEL[language] || REPLAY_LABEL.en}
-                    </button>
-                  )}
-                </div>
-              )}
             </div>
           ))
         )}

@@ -38,7 +38,6 @@ const DoctorRegistration = () => {
     state: '',
     password: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -128,7 +127,7 @@ const DoctorRegistration = () => {
           </div>
 
           <div className="input-group">
-            <label>{t('email') || 'Email'}</label>
+            <label>Email</label>
             <input type="email" name="email" value={formData.email}
               onChange={handleChange} placeholder="doctor@example.com" className="large-input" />
           </div>
@@ -163,7 +162,7 @@ const DoctorRegistration = () => {
             <label>{t('area') || 'Area / District'}</label>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <input type="text" name="area" value={formData.area}
-                onChange={handleChange} placeholder={t('area') || "e.g. Vaishali Nagar"} className="large-input" style={{ marginBottom: 0, flex: 1 }} />
+                onChange={handleChange} placeholder="e.g. Vaishali Nagar" className="large-input" style={{ marginBottom: 0, flex: 1 }} />
               <VoiceInputButton language={language} onResult={(text) => handleVoiceInput('area', text)} />
             </div>
           </div>
@@ -181,18 +180,8 @@ const DoctorRegistration = () => {
 
           <div className="input-group">
             <label>{t('password') || 'Password'}</label>
-            <div style={{ position: 'relative' }}>
-              <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password}
-                onChange={handleChange} placeholder={t('passwordPH') || 'Minimum 8 characters'} className="large-input" style={{ paddingRight: '44px' }} />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', padding: '4px', lineHeight: 1 }}
-                tabIndex={-1}
-              >
-                {showPassword ? '🙈' : '👁️'}
-              </button>
-            </div>
+            <input type="password" name="password" value={formData.password}
+              onChange={handleChange} placeholder={t('passwordPH') || 'Minimum 8 characters'} className="large-input" />
           </div>
 
           <button type="submit" className="btn-primary large mt-4"
@@ -200,14 +189,6 @@ const DoctorRegistration = () => {
             {t('createAccountBtn')}
           </button>
 
-          <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: '#555' }}>
-            <span 
-              onClick={() => navigate('/doctor-login')} 
-              style={{ color: '#1565C0', textDecoration: 'none', cursor: 'pointer' }}
-            >
-              {t('alreadyHaveAccountDoctor') || 'Already have an account? Login here →'}
-            </span>
-          </p>
         </form>
       </div>
     </div>

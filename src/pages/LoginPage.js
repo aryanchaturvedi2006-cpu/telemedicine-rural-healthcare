@@ -1,26 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
 import API_BASE_URL from '../config';
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [staySignedIn, setStaySignedIn] = useState(false);
-
-  // Forgot Password state
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotLoading, setForgotLoading] = useState(false);
-  const [forgotMsg, setForgotMsg] = useState('');
-  const [forgotError, setForgotError] = useState('');
 
   const handleChange = (e) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -42,7 +31,7 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        login({ ...data.data, role: 'doctor' }, staySignedIn);
+        login({ ...data.data, role: 'doctor' });
         navigate('/doctor-dashboard');
       } else {
         setError(data.message || 'Invalid credentials. Please check your email and password.');
@@ -52,30 +41,6 @@ export default function LoginPage() {
       setError('An error occurred during login. Please try again later.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    setForgotLoading(true);
-    setForgotError('');
-    setForgotMsg('');
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/doctors/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setForgotMsg('New password sent to your email. Please check your inbox.');
-      } else {
-        setForgotError(data.message || 'Failed to send reset email.');
-      }
-    } catch (err) {
-      setForgotError('An error occurred. Please try again.');
-    } finally {
-      setForgotLoading(false);
     }
   };
 
@@ -121,7 +86,7 @@ export default function LoginPage() {
     height: '48px',
     borderRadius: '10px',
     border: '1.5px solid #E0E0E0',
-    padding: '12px 44px 12px 16px',
+    padding: '12px 16px',
     fontSize: '15px',
     boxSizing: 'border-box',
     outline: 'none',
@@ -159,19 +124,6 @@ export default function LoginPage() {
     marginBottom: '12px'
   };
 
-  const eyeBtnStyle = {
-    position: 'absolute',
-    right: '12px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '18px',
-    padding: '4px',
-    lineHeight: 1
-  };
-
   return (
     <div style={containerStyle}>
       <button 
@@ -180,119 +132,68 @@ export default function LoginPage() {
         onMouseOver={(e) => e.target.style.color = '#0D47A1'}
         onMouseOut={(e) => e.target.style.color = '#1565C0'}
       >
-        ← {t('back') || 'Back'}
+        ← Back
       </button>
       
       <div style={cardStyle}>
         <div style={{ textAlign: 'center', fontSize: '44px', marginBottom: '8px' }}>👨‍⚕️</div>
-        <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1565C0', textAlign: 'center', margin: '0 0 4px 0' }}>{t('doctorSignInTitle') || 'Doctor Sign In'}</h2>
-        <p style={{ fontSize: '13px', color: '#555', textAlign: 'center', margin: '0' }}>{t('doctorSignInSub') || 'Access your patient dashboard'}</p>
+        <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1565C0', textAlign: 'center', margin: '0 0 4px 0' }}>Doctor Sign In</h2>
+        <p style={{ fontSize: '13px', color: '#555', textAlign: 'center', margin: '0' }}>Access your patient dashboard</p>
         
         <div style={{ borderTop: '1px solid #E0E0E0', margin: '16px 0' }}></div>
-
-        {showForgotPassword ? (
-          <div>
-            <div
-              onClick={() => { setShowForgotPassword(false); setForgotMsg(''); setForgotError(''); setForgotEmail(''); }}
-              style={{ fontSize: '13px', color: '#1565C0', cursor: 'pointer', marginBottom: '16px', fontWeight: 'bold' }}
-            >
-              {t('backToLogin') || '← Back to Login'}
-            </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1565C0', margin: '0 0 8px 0' }}>{t('resetPassword') || 'Reset Password'}</h3>
-            <p style={{ fontSize: '13px', color: '#555', margin: '0 0 20px 0' }}>{t('resetPwdSub') || 'Enter your registered email to receive a temporary password.'}</p>
-            <form onSubmit={handleForgotPassword}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>{t('email') || 'Email'}</label>
-                <input
-                  type="email"
-                  value={forgotEmail}
-                  onChange={(e) => setForgotEmail(e.target.value)}
-                  placeholder="doctor@example.com"
-                  required
-                  style={inputStyle}
-                  onFocus={(e) => e.target.style.borderColor = '#1565C0'}
-                  onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
-                />
-              </div>
-              {forgotError && <div style={errorStyle}>⚠️ {forgotError}</div>}
-              {forgotMsg && <div style={{ backgroundColor: '#E8F5E9', borderLeft: '4px solid #2E7D32', color: '#2E7D32', padding: '12px 16px', borderRadius: '8px', fontSize: '14px', marginBottom: '12px' }}>✅ {forgotMsg}</div>}
-              <button type="submit" disabled={forgotLoading} style={btnStyle}
-                onMouseOver={(e) => e.target.style.backgroundColor = '#0D47A1'}
-                onMouseOut={(e) => e.target.style.backgroundColor = '#1565C0'}
-              >
-                {forgotLoading ? '...' : (t('sendNewPwdBtn') || 'Send New Password')}
-              </button>
-            </form>
+        
+        <form onSubmit={handleSubmit} noValidate>
+          <div style={{ marginBottom: '16px' }}>
+            <label htmlFor="email" style={labelStyle}>Email Address</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="doctor@example.com"
+              value={form.email}
+              onChange={handleChange}
+              required
+              autoComplete="email"
+              style={inputStyle}
+              onFocus={(e) => e.target.style.borderColor = '#1565C0'}
+              onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+            />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>{t('email') || 'Email'}</label>
-                <input 
-                  type="email" 
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="doctor@example.com" 
-                  style={inputStyle}
-                  required
-                  onFocus={(e) => e.target.style.borderColor = '#1565C0'}
-                  onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
-                />
-              </div>
-              
-              <div style={{ marginBottom: '8px', position: 'relative' }}>
-                <label style={labelStyle}>{t('password') || 'Password'}</label>
-                <input 
-                  type={showPassword ? 'text' : 'password'} 
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  placeholder="••••••••" 
-                  style={inputStyle}
-                  required
-                  onFocus={(e) => e.target.style.borderColor = '#1565C0'}
-                  onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
-                />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} style={eyeBtnStyle} tabIndex={-1}>
-                  {showPassword ? '🙈' : '👁️'}
-                </button>
-              </div>
+          
+          <div style={{ marginBottom: '24px' }}>
+            <label htmlFor="password" style={labelStyle}>Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              value={form.password}
+              onChange={handleChange}
+              required
+              autoComplete="current-password"
+              style={inputStyle}
+              onFocus={(e) => e.target.style.borderColor = '#1565C0'}
+              onBlur={(e) => e.target.style.borderColor = '#E0E0E0'}
+            />
+          </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', fontSize: '13px', color: '#555', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={staySignedIn}
-                    onChange={(e) => setStaySignedIn(e.target.checked)}
-                    style={{ marginRight: '8px', cursor: 'pointer' }}
-                  />
-                  {t('staySignedIn') || 'Stay signed in'}
-                </label>
-                <div 
-                  onClick={() => { setShowForgotPassword(true); setError(''); }}
-                  style={{ fontSize: '12px', color: '#1565C0', cursor: 'pointer', textDecoration: 'underline' }}
-                >
-                  {t('forgotPwd') || 'Forgot Password?'}
-                </div>
-              </div>
+          {error && <div style={errorStyle}>⚠️ {error}</div>}
 
-              {error && <div style={errorStyle}>{error}</div>}
+          <button
+            type="submit"
+            disabled={loading}
+            style={btnStyle}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#0D47A1'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#1565C0'}
+          >
+            {loading ? 'Signing In...' : 'Sign In'}
+          </button>
+        </form>
 
-              <button type="submit" style={{...btnStyle, opacity: loading ? 0.7 : 1}} disabled={loading}>
-                {loading ? '...' : (t('loginBtn') || 'Login →')}
-              </button>
-
-              <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                <span 
-                  onClick={() => navigate('/doctor-registration')}
-                  style={{ fontSize: '14px', color: '#1565C0', cursor: 'pointer', fontWeight: 'bold' }}
-                >
-                  {t('newDoctorRegister') || 'New doctor? Register here'}
-                </span>
-              </div>
-            </form>
-          )}
+        <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: '#555' }}>
+          Don't have an account?{' '}
+          <Link to="/doctor-registration" style={{ color: '#1565C0', textDecoration: 'none' }}>Register here →</Link>
+        </p>
       </div>
     </div>
   );
