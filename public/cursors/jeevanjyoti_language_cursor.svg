@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="gold" x1="4" y1="3" x2="20" y2="25" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF1B8"/>
+      <stop offset="0.28" stop-color="#F4C95D"/>
+      <stop offset="0.72" stop-color="#D4A017"/>
+      <stop offset="1" stop-color="#B8860B"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="14" y1="17" x2="15" y2="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF7D6"/>
+      <stop offset="0.45" stop-color="#FFD66B"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="17" y1="25" x2="24" y2="29" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5BBF62"/>
+      <stop offset="1" stop-color="#2E7D32"/>
+    </linearGradient>
+    <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="0.65" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Tiny directional golden tail / fire trail behind the pointer -->
+  <path d="M9.3 25.6C7.1 23.8 6.5 21.9 7.2 20.3C8 18.5 9.8 17.3 11.8 16.5C10.8 18.5 10.9 20.4 12.1 21.8C13.1 23 14 23.7 14.6 24.3C13.3 25.4 11.4 26.3 9.3 25.6Z" fill="url(#flame)" opacity="0.88" filter="url(#softGlow)"/>
+
+  <!-- Main premium pointer -->
+  <path d="M3.2 2.4L8.9 25.4L13.2 19.1L19.1 26.3L22.1 23.8L16.2 16.6L23.6 15.2L3.2 2.4Z" fill="url(#gold)" stroke="#8C6200" stroke-width="0.85" stroke-linejoin="round"/>
+
+  <!-- Clean inner highlight -->
+  <path d="M5.6 5.3L9.7 21.3L12.1 17.7L5.6 5.3Z" fill="#FFF9E8" opacity="0.72"/>
+
+  <!-- Tiny JeevanJyoti flame integrated near cursor base -->
+  <path d="M14.2 24.5C14.3 22.6 15.6 21.5 16.7 20.2C17.6 22.6 19.1 23.8 19 25.6C18.9 27 17.9 28 16.5 28C15.1 28 14.1 26.8 14.2 24.5Z" fill="url(#flame)" stroke="#D99A13" stroke-width="0.45"/>
+
+  <!-- Tiny leaf -->
+  <path d="M18.2 27.5C20.5 25.9 22.7 26.3 24.2 27.2C22.6 29.2 20.4 29.7 18.2 27.5Z" fill="url(#leaf)" stroke="#216B2A" stroke-width="0.4"/>
+  <path d="M19 27.6L23.1 27.7" stroke="#8BD48F" stroke-width="0.45" stroke-linecap="round" opacity="0.75"/>
+</svg>
