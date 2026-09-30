@@ -6,7 +6,11 @@ from flask_cors import CORS
 from translations import get_translation
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:3001"]}})
+allowed_origins = os.environ.get(
+    'ALLOWED_ORIGINS',
+    'http://localhost:3000,http://localhost:3001'
+).split(',')
+CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
 # Load Model
 try:
@@ -177,4 +181,5 @@ def get_optimization():
 
 
 if __name__ == '__main__':
-    app.run(port=5001, debug=True)
+    port = int(os.environ.get('PORT', 5001))
+    app.run(host='0.0.0.0', port=port, debug=False)

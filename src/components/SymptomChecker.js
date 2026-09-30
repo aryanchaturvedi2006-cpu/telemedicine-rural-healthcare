@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import VoiceInputButton from './common/VoiceInputButton';
+import { AI_BASE_URL } from '../config';
 
 const SymptomChecker = ({ onClose, onBookConsultation }) => {
   const { language, t } = useLanguage();
@@ -22,7 +23,7 @@ const SymptomChecker = ({ onClose, onBookConsultation }) => {
   useEffect(() => {
     const fetchSymptoms = async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:5001/api/symptoms/list?language=${language || 'hi'}`);
+        const res = await fetch(`${AI_BASE_URL}/api/symptoms/list?language=${language || 'hi'}`);
         if (res.ok) {
           const data = await res.json();
           setAvailableSymptoms(data.symptoms || []);
@@ -54,7 +55,7 @@ const SymptomChecker = ({ onClose, onBookConsultation }) => {
     setIsExtracting(true);
     setErrorMsg('');
     try {
-      const res = await fetch(`http://127.0.0.1:5001/api/symptoms/from-text`, {
+      const res = await fetch(`${AI_BASE_URL}/api/symptoms/from-text`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: textToExtract, language: language || 'hi' })
@@ -94,7 +95,7 @@ const SymptomChecker = ({ onClose, onBookConsultation }) => {
     setIsAnalyzing(true);
     setErrorMsg('');
     try {
-      const res = await fetch(`http://127.0.0.1:5001/api/symptoms/analyze`, {
+      const res = await fetch(`${AI_BASE_URL}/api/symptoms/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
